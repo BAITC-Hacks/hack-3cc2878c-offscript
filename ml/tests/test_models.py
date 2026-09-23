@@ -50,6 +50,21 @@ def test_quantile_bundle_fit_and_predict_are_ordered() -> None:
     assert ((predicted["p10"] <= predicted["p50"]) & (predicted["p50"] <= predicted["p90"])).all()
     assert predicted[["p10", "p50", "p90"]].ge(0).all().all()
     assert predicted[["p10", "p50", "p90"]].le(1).all().all()
+    raw_median = bundle.quantiles[0.5].predict(predicted[bundle.feature_list])
+    expected = 0.5 * (raw_median + predicted["pc_mos"].to_numpy()) * bundle.availability_factor
+    np.testing.assert_allclose(predicted["p50"], np.clip(expected, predicted["p10"], predicted["p90"]))
+
+
+def test_availability_uses_flagged_calibration_hours_and_legacy_bundle_loads() -> None:
+    scada, training, times = _sample_frames()
+    training.loc[training.index[-50:], "flag_outage"] = True
+    bundle = train_bundle(scada, training, times[-1], "unit")
+    assert 0 < bundle.availability_factor < 1
+    del bundle.availability_factor
+    predicted = predict_bundle(bundle, training.drop(columns=[
+        "y", "wind_meas", "flag_missing", "flag_stuck", "flag_outage", "flag_icing_suspect"
+    ]).tail(4))
+    assert predicted[["p10", "p50", "p90"]].notna().all().all()
 
 
 def test_future_scada_cannot_change_fitted_power_curve() -> None:

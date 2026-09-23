@@ -29,6 +29,7 @@ class ModelBundle:
     feature_list: list[str]
     train_end: str
     version: str
+    availability_factor: float = 1.0
 
 
 def _feature_list(frame: pd.DataFrame) -> list[str]:
@@ -69,11 +70,21 @@ def train_bundle(scada: pd.DataFrame, training: pd.DataFrame, train_end: object,
     if len(fit_rows) < 500 or len(calibration) < 100:
         cutoff = int(len(clean) * 0.8)
         fit_rows, calibration = clean.iloc[:cutoff].copy(), clean.iloc[cutoff:].copy()
+        calibration_start = calibration["target_time"].min()
+
+    # Scored output includes flagged downtime. Estimate its frequency only from
+    # the pre-cutoff calibration window, while keeping those flagged observations
+    # out of the power-curve/MOS/quantile fits.
+    target_time = pd.to_datetime(training["target_time"], utc=True)
+    calibration_all = training.loc[
+        (target_time >= calibration_start) & training["y"].notna() & training["v_hub_mean"].notna()
+    ].copy()
+    availability_factor = float(len(calibration) / len(calibration_all))
 
     power_curve = fit_power_curve(scada)
     mos_feature_list = _feature_list(fit_rows)
     mos = _fit_hgb().fit(fit_rows[mos_feature_list], fit_rows["wind_meas"])
-    for frame in (fit_rows, calibration):
+    for frame in (fit_rows, calibration_all):
         frame["pc_raw"] = predict_power_curve(power_curve, frame["v_hub_mean"])
         frame["pc_mos"] = predict_power_curve(power_curve, mos.predict(frame[mos_feature_list]))
     feature_list = _feature_list(fit_rows)
@@ -81,8 +92,13 @@ def train_bundle(scada: pd.DataFrame, training: pd.DataFrame, train_end: object,
         quantile: _fit_hgb(loss="quantile", quantile=quantile).fit(fit_rows[feature_list], fit_rows["y"])
         for quantile in (0.1, 0.5, 0.9)
     }
-    validation_predictions = np.column_stack([quantiles[q].predict(calibration[feature_list]) for q in (0.1, 0.9)])
-    errors = np.maximum(validation_predictions[:, 0] - calibration["y"], calibration["y"] - validation_predictions[:, 1])
+    validation_predictions = np.column_stack(
+        [quantiles[q].predict(calibration_all[feature_list]) for q in (0.1, 0.9)]
+    ) * availability_factor
+    errors = np.maximum(
+        validation_predictions[:, 0] - calibration_all["y"],
+        calibration_all["y"] - validation_predictions[:, 1],
+    )
     qhat = float(max(0.0, np.quantile(errors, min(1.0, 0.8 * (1 + 1 / len(errors))), method="higher")))
     return ModelBundle(
         power_curve=power_curve,
@@ -92,7 +108,8 @@ def train_bundle(scada: pd.DataFrame, training: pd.DataFrame, train_end: object,
         qhat=qhat,
         feature_list=feature_list,
         train_end=end.isoformat().replace("+00:00", "Z"),
-        version=f"hybrid-qhgb-train{end.date().isoformat()}-{mode}",
+        version=f"hybrid-qhgb-availability-blend-train{end.date().isoformat()}-{mode}",
+        availability_factor=availability_factor,
     )
 
 
@@ -112,10 +129,16 @@ def predict_bundle(bundle: ModelBundle, features: pd.DataFrame, widen: float = 0
     model_features = result[bundle.feature_list]
     predicted = np.column_stack([bundle.quantiles[q].predict(model_features) for q in (0.1, 0.5, 0.9)])
     predicted.sort(axis=1)
+    availability_factor = float(getattr(bundle, "availability_factor", 1.0))
+    predicted *= availability_factor
+    # A fixed, predeclared blend borrows the MOS power curve's stronger point
+    # forecast without sacrificing the hybrid model's calibrated interval.
+    blended_p50 = 0.5 * (predicted[:, 1] + result["pc_mos"].to_numpy() * availability_factor)
     predicted[:, 0] -= bundle.qhat + widen
     predicted[:, 2] += bundle.qhat + widen
     predicted = np.clip(predicted, 0.0, 1.0)
     predicted.sort(axis=1)
+    predicted[:, 1] = np.clip(blended_p50, predicted[:, 0], predicted[:, 2])
     result[["p10", "p50", "p90"]] = predicted
     return result
 

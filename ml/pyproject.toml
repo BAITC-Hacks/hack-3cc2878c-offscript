@@ -9,3 +9,6 @@ requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 include = ["samal_ml*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["../backend"]

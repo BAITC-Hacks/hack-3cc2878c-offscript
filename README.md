@@ -63,21 +63,21 @@ then replayed issue by issue exactly like the test period.
 
 The SAMAL hybrid median is a fixed 50/50 blend of the quantile model and the MOS power curve. It is multiplied by an **availability factor**:
 the share of hours in the 56-day calibration window before training ends in which the farm produced without outage, stuck-sensor or missing-data
-flags. Before this correction every model over-forecast by 7–9 percentage points of capacity, because real output includes downtime. The
+flags. Before this correction the hybrid over-forecast by about 8–9 percentage points of capacity, because real output includes downtime. The
 correction brought the hybrid bias down to +2.1 pp (Feb 2025) and +1.2 pp (winter).
 
 | Held-out period | Hours | Model | NMAE | Bias | Skill vs persistence | P10–P90 coverage (target 80%) |
 |---|---:|---|---:|---:|---:|---:|
-| Feb 2025 (seasonal twin) | 667 | **SAMAL hybrid** | **20.3%** | +2.1 pp | +51.6% | 93.0% |
-|  |  | MOS wind + power curve | 21.3% | +8.4 pp | +49.2% | 66.6% |
-|  |  | Raw NWP wind + power curve | 21.5% | +8.6 pp | +48.7% | 65.7% |
-|  |  | Climatology (month × hour) | 31.8% | +7.9 pp | +24.0% | 18.7% |
-|  |  | Persistence (last observed power) | 41.9% | +1.3 pp | +0.0% | 28.8% |
-| Winter 2025–26 (Nov–Jan) | 2208 | **SAMAL hybrid** | **18.1%** | +1.2 pp | +51.9% | 79.6% |
-|  |  | MOS wind + power curve | 18.1% | +6.8 pp | +51.8% | 52.4% |
-|  |  | Raw NWP wind + power curve | 19.6% | +8.9 pp | +48.0% | 51.1% |
-|  |  | Climatology (month × hour) | 33.2% | +5.2 pp | +11.8% | 16.8% |
-|  |  | Persistence (last observed power) | 37.6% | -6.0 pp | +0.0% | 29.9% |
+| Feb 2025 (seasonal twin) | 667 | **SAMAL hybrid** | **20.29%** | +2.13 pp | +51.56% | 92.95% |
+|  |  | MOS wind + power curve | 21.27% | +8.41 pp | +49.22% | 66.57% |
+|  |  | Raw NWP wind + power curve | 21.48% | +8.58 pp | +48.73% | 65.67% |
+|  |  | Climatology (month × hour) | 31.83% | +7.87 pp | +24.01% | 18.74% |
+|  |  | Persistence (last observed power) | 41.89% | +1.28 pp | +0.00% | 28.79% |
+| Winter 2025–26 (Nov–Jan) | 2,208 | **SAMAL hybrid** | **18.08%** | +1.25 pp | +51.90% | 79.62% |
+|  |  | MOS wind + power curve | 18.12% | +6.76 pp | +51.78% | 52.45% |
+|  |  | Raw NWP wind + power curve | 19.55% | +8.89 pp | +47.98% | 51.13% |
+|  |  | Climatology (month × hour) | 33.15% | +5.19 pp | +11.80% | 16.80% |
+|  |  | Persistence (last observed power) | 37.59% | -5.98 pp | +0.00% | 29.89% |
 
 Numbers are copied from `data/outputs/metrics/val_feb2025.json` and `val_winter.json`; `make validate` regenerates them.
 February 2026 actual generation was not provided, so no test-period accuracy is claimed.
