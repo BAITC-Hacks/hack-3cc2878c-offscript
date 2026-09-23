@@ -1,4 +1,4 @@
-# SAMAL ML
+# SAMAL ML.
 
 This folder contains the leakage-safe probabilistic forecasting engine for the two-turbine Shelek wind farm.
 
