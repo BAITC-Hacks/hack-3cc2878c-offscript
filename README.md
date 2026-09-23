@@ -31,7 +31,7 @@ every published forecast in a tamper-evident hash-chained ledger.
 
 ---
 
-## 1. Описание решения / Solution and purpose
+## 1. Описание решения / Solution and purpose.
 
 **Problem.** Wind generation is variable. The grid operator and the farm need an hourly forecast for the next day, with an honest uncertainty
 range, so they can plan balancing reserves and limit imbalance costs.
