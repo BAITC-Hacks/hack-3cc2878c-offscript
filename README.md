@@ -1,5 +1,5 @@
 # SAMAL: Self-Auditing Multi-model Agentic Loop for wind-farm power forecasting
-**HackAlem AI 2026 · Task: Agentic AI for Wind Farm Generation Forecasting (ВЭС)**
+**HackAlem AI 2026 · Task: Agentic AI for Wind Farm Generation Forecasting (ВЭС).**
 
 > 🚧 Skeleton: Person C finalizes by 17:30 with real metrics & screenshots. Sections below are required by rule 5.4.15. Do not remove any.
 
