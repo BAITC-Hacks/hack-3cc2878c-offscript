@@ -3,7 +3,7 @@
 
 The runnable repository includes the archived weather cache, trained models, validation metrics, and the February 2026 submission CSVs. It works offline with no LLM key; an optional OpenAI key enables structured planning, risk decisions, critique, and grounded trilingual briefings.
 
-## 1. What it is & why (description and purpose)
+## 1. What it is & why (description and purpose).
 SAMAL is an autonomous AI agent that produces **hourly, probabilistic (P10/P50/P90) power forecasts 24–48 h ahead** for the two-turbine
 wind farm in the Shelek corridor (Almaty region, 43.645°N, 78.536°E). It replays **28 daily issues, 31 Jan → 27 Feb 2026**, covering every hour of February's day-ahead product as if in real time,
 using **only archived weather forecasts that existed at each issue time**, audits itself with a Critic agent, recalculates when newer
