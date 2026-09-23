@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
-import { getForecast, mockMode } from '../api/client'
+import { getForecast, getRun, getRuns, mockMode } from '../api/client'
 import type { ForecastResult, Mode, Variant } from '../api/types'
 import { FanChart } from '../components/FanChart'
 import { BriefingCard, EmptyState, ErrorState, FlagChips, Metric, Panel, ProofStrip, Status, localTime, number, percent } from '../components/Shared'
@@ -18,6 +18,7 @@ function downloadRows(forecast: ForecastResult) {
 
 export function ForecastPage({ issueDate, mode }: { issueDate: string; mode: Mode }) {
   const [variant, setVariant] = useState<Variant>('hybrid')
+  const [variantReady, setVariantReady] = useState(mockMode)
   const [forecast, setForecast] = useState<ForecastResult | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -27,14 +28,31 @@ export function ForecastPage({ issueDate, mode }: { issueDate: string; mode: Mod
 
   useEffect(() => {
     let active = true
+    setVariantReady(false)
+    setForecast(null)
+    if (mockMode) { setVariant('hybrid'); setVariantReady(true); return () => { active = false } }
+    getRuns().then(async runs => {
+      const published = runs.find(run => run.issue_date === issueDate && run.status === 'done')
+      if (!published) return null
+      return getRun(published.run_id)
+    }).then(run => {
+      if (active) setVariant(run?.mode === mode && run.result?.ledger?.verified ? run.result.variant : 'hybrid')
+    }).catch(() => { if (active) setVariant('hybrid') }).finally(() => { if (active) setVariantReady(true) })
+    return () => { active = false }
+  }, [issueDate, mode])
+
+  useEffect(() => {
+    if (!variantReady) return
+    let active = true
     setLoading(true)
     setError('')
+    setForecast(null)
     getForecast(issueDate, mode, variant).then(value => { if (active) setForecast(value) }).catch(cause => { if (active) setError(cause.message) }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [issueDate, mode, variant, revision])
+  }, [issueDate, mode, variant, revision, variantReady])
 
   if (error) return <ErrorState message={error} retry={() => setRevision(value => value + 1)} />
-  if (loading && !forecast) return <div className="loading">Loading 48 hourly forecasts…</div>
+  if ((!variantReady || loading) && !forecast) return <div className="loading">Loading 48 hourly forecasts…</div>
   if (!forecast) return <EmptyState message="No forecast is available for this issue date." />
   return <div className="page-stack">
     <div className="page-intro"><div><h1>Forecast operations</h1><p>Hourly generation forecast for the two turbine Shelek wind farm. Power is normalized to farm capacity.</p></div><div className="page-actions"><label className="select-label">Model variant<select value={variant} onChange={event => setVariant(event.target.value as Variant)}><option value="hybrid">Hybrid quantile</option><option value="mos_pc">MOS + power curve</option><option value="raw_pc">Raw weather + curve</option><option value="climatology">Climatology</option><option value="persistence">Persistence</option></select></label><button className="button button-secondary" onClick={() => setRevision(value => value + 1)} aria-label="Refresh forecast"><RefreshCw size={16} /> Refresh</button></div></div>

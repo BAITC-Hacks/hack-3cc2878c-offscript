@@ -34,7 +34,7 @@ The mock fixtures are copied into `public/mocks/` automatically before dev/build
 
 ## Operator workflow
 
-1. Choose an issue schedule and date; inspect the 48-hour fan chart, day-ahead table, flags, multilingual briefing, and CSV export.
+1. Choose an issue schedule and date; the Forecast tab opens the latest published agent-selected variant for that issue (or the hybrid model if none was published). Inspect the 48-hour fan chart, day-ahead table, flags, multilingual briefing, and CSV export; the variant selector remains available for comparison.
 2. Run the agent to follow planning, archived-weather fetch, quality control, prediction, critic feedback, briefing, and publication. Trigger **Recalculate** for a revised weather run.
 3. Inspect February 2025 or winter validation metrics, including skill against persistence, coverage, lead-hour error, reliability, and observed series.
 4. Verify the ledger, then run the non-destructive tamper demo against a selected forecast block.
