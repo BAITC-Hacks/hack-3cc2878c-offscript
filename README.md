@@ -5,7 +5,7 @@
 
 ## 1. What it is & why (description and purpose)
 SAMAL is an autonomous AI agent that produces **hourly, probabilistic (P10/P50/P90) power forecasts 24–48 h ahead** for the two-turbine
-wind farm in the Shelek corridor (Almaty region, 43.645°N 78.536°E). It replays the test period **31 Jan → 28 Feb 2026** as if in real time,
+wind farm in the Shelek corridor (Almaty region, 43.645°N, 78.536°E). It replays the test period **31 Jan → 28 Feb 2026** as if in real time,
 using **only archived weather forecasts that existed at each issue time**, audits itself with a Critic agent, recalculates when newer
 weather data arrives, writes dispatcher briefings in 🇰🇿 Kazakh / 🇷🇺 Russian / 🇬🇧 English, and seals every forecast into a hash-chained
 **Proof-of-No-Lookahead ledger**.
