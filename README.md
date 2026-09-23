@@ -15,7 +15,7 @@ every published forecast in a tamper-evident hash-chained ledger.
 > Откройте http://localhost:5173 (интерфейс) и http://localhost:8000/docs (API). Интернет, ключи API и обучение моделей не требуются:
 > архив прогнозов погоды, обученные модели и результаты уже находятся в репозитории. Проверка основного сценария описана в разделе 9.
 
-### README requirements checklist / Соответствие требованиям к README
+### README requirements checklist / Соответствие требованиям к README.
 
 | Требование (HackAlem AI) | Section |
 |---|---|
