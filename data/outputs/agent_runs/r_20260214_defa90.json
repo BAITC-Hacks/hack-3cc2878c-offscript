@@ -374,7 +374,7 @@
       "title": "Published forecast as ledger block #2",
       "detail": {
         "block_index": 2,
-        "hash": "1a3e22329a20933fe159f8fa83e1a67284806ff895f0b1e43ce178cc773bcb16"
+        "hash": "934aa29c5b0a2633916b2b52e7d87fb51dc665b468c10786bce5bb3f05b6f831"
       },
       "actor": "ledger",
       "llm": null,
@@ -1519,7 +1519,7 @@
     },
     "ledger": {
       "block_index": 2,
-      "hash": "1a3e22329a20933fe159f8fa83e1a67284806ff895f0b1e43ce178cc773bcb16",
+      "hash": "934aa29c5b0a2633916b2b52e7d87fb51dc665b468c10786bce5bb3f05b6f831",
       "verified": true
     }
   }

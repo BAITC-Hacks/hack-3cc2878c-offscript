@@ -16,6 +16,32 @@ from .ledger import Ledger, canon, sha
 from .settings import settings
 
 
+def sync_run_proofs(ledger: Ledger) -> int:
+    """Keep persisted UI traces aligned with a pre-release rehashed chain."""
+    count = 0
+    directory = settings.outputs_dir / "agent_runs"
+    for path in directory.glob("r_*.json") if directory.exists() else []:
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        result = saved.get("result") or {}
+        proof = result.get("ledger") or {}
+        index = proof.get("block_index")
+        if not isinstance(index, int) or index >= len(ledger.blocks):
+            continue
+        block = ledger.blocks[index]
+        if sha(result.get("rows", [])) != block.get("payload_sha256"):
+            raise RuntimeError(f"Persisted run {path.name} disagrees with block {index}")
+        if proof.get("hash") == block["hash"]:
+            continue
+        proof["hash"] = block["hash"]
+        proof["verified"] = ledger.verify()["valid"]
+        for event in saved.get("events", []):
+            if event.get("stage") == "PUBLISH" and event.get("detail", {}).get("block_index") == index:
+                event["detail"]["hash"] = block["hash"]
+        path.write_text(json.dumps(saved, ensure_ascii=False, indent=2), encoding="utf-8")
+        count += 1
+    return count
+
+
 def main() -> None:
     ledger = Ledger(settings.ledger_path)
     if not ledger.verify()["valid"]:
@@ -24,7 +50,7 @@ def main() -> None:
     pending = [block for block in ledger.blocks if block.get("payload_file") and
                Path(block["payload_file"]).is_relative_to(old_prefix)]
     if not pending:
-        print("No mutable payload paths to migrate")
+        print(f"No mutable payload paths to migrate; synced {sync_run_proofs(ledger)} persisted run proofs")
         return
     backup = settings.ledger_path.with_suffix(".pre_immutable_migration.jsonl")
     if backup.exists():
@@ -57,7 +83,7 @@ def main() -> None:
     verified = Ledger(settings.ledger_path).verify()
     if not verified["valid"]:
         raise RuntimeError(f"Migrated ledger failed verification: {verified['errors']}")
-    print(f"Migrated {len(pending)} payload paths; new ledger head {verified['head_hash']}")
+    print(f"Migrated {len(pending)} payload paths; synced {sync_run_proofs(Ledger(settings.ledger_path))} persisted run proofs; new ledger head {verified['head_hash']}")
 
 
 if __name__ == "__main__":
