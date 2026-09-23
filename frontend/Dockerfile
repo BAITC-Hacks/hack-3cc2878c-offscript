@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci || npm install
 COPY frontend ./
-COPY shared/mocks ./public/mocks
+COPY shared/mocks /app/shared/mocks
 ARG VITE_API_URL=http://localhost:8000
 ARG VITE_USE_MOCKS=0
 ENV VITE_API_URL=$VITE_API_URL VITE_USE_MOCKS=$VITE_USE_MOCKS
