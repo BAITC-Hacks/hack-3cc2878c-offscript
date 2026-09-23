@@ -132,11 +132,13 @@ flowchart LR
 5. `ANALYZE`: the risk scan flags ramps, low confidence, model disagreement, cut-out and icing.
 6. `DECIDE`: ACCEPT / WIDEN / RERUN / ESCALATE.
 7. `CRITIC`: an independent audit. If it rejects, the forecast is rerun (at most twice). A deterministic physical check can veto an LLM approval.
-8. `RECALC`: the new issue is compared with the previous day's published forecast over the overlapping hours, which now use fresher archived weather. *Review & recalculate* publishes a `REVISION` block and states whether the inputs changed.
+8. `RECALC`: each new replay issue compares its 24 overlapping target hours against the prior published issue, including comparable per-hour selected-NWP fingerprints and forecast MAE/max change. The new issue remains a `FORECAST` block. For the same issue, an automatic weather check publishes a `REVISION` only when selected input values changed; otherwise it ends without a new block. An operator can explicitly request a separately labelled manual uncertainty review.
 9. `BRIEF`: dispatcher briefing in EN/RU/KZ. LLM text is rejected if it contains a number that is not in the computed facts.
 10. `PUBLISH`: the forecast payload is written to an immutable file, and its SHA-256 goes into a new ledger block.
 
 Numeric forecasts always come from Python, never from the LLM.
+
+**Optional NWP watcher.** Set `NWP_WATCH_ENABLED=1` to poll the selected archived cache for a published issue. It compares the current selected-input fingerprint with the latest sealed version and automatically starts one keyless recalculation per changed version. Set `NWP_WATCH_ISSUE_DATE` to pin an issue, or leave it blank to watch the latest published issue in `NWP_WATCH_MODE`. This watches the local archive; it does **not** fetch live provider updates or prove when a source run was released. Refreshing the cache is a separate operation.
 
 **REST API** (interactive documentation at http://localhost:8000/docs)
 
@@ -145,7 +147,7 @@ Numeric forecasts always come from Python, never from the LLM.
 | `GET /api/health` | Service status and active configuration |
 | `GET /api/meta` | Farm metadata, issue schedules, TemporalGuard rule |
 | `GET /api/forecast?issue_date=2026-02-15&mode=test&variant=hybrid` | 48-hour forecast, risk flags, briefing, ledger integrity record when sealed |
-| `POST /api/agent/run`, `POST /api/agent/recalc` | Start an agent run or a recalculation; body `{"issue_date": "2026-02-15", "mode": "test"}` |
+| `POST /api/agent/run`, `POST /api/agent/recalc` | Start an agent run or a same-issue recalculation; `reason:"new_nwp"` requires changed selected inputs, while `reason:"manual_uncertainty_review"` explicitly publishes an operator review |
 | `GET /api/agent/stream/{run_id}` | Live agent trace (Server-Sent Events) |
 | `GET /api/agent/runs`, `GET /api/agent/runs/{run_id}` | Stored agent runs |
 | `GET /api/backtest?mode=val_feb2025`, `GET /api/series?mode=val_winter` | Validation metrics and day-ahead series |
@@ -237,6 +239,11 @@ and local runs load it automatically. The defaults need no changes.
 | `HUB_HEIGHT_M` | `100` | number | Informational only; the model uses a fixed 100 m hub height (`ml/samal_ml/config.py`). |
 | `DEMO_PACING` | `0` | `0` / `1` | `1` adds short pauses between agent stages so the live trace is easy to follow during a presentation. |
 | `USE_ML_STUB` | `0` | `0` / `1` | `1` serves fixture data instead of the real ML engine (frontend development only). Keep `0`. |
+| `NWP_WATCH_ENABLED` | `0` | `0` / `1` | Start an opt-in background poller for selected cached NWP inputs. No API key or external fetch is required. |
+| `NWP_WATCH_POLL_SECONDS` | `60` | integer ≥ 5 | Interval between fingerprint checks. |
+| `NWP_WATCH_MODE` | `test` | `test`, `val_feb2025`, `val_winter` | Replay schedule to watch. |
+| `NWP_WATCH_ISSUE_DATE` | empty | issue date or empty | Pin a published issue; empty watches the latest published issue for the selected mode. |
+| `NWP_WATCH_USE_LLM` | `0` | `0` / `1` | Whether watcher-triggered recalculation calls the LLM; keyless deterministic mode is the default. |
 
 Frontend build-time variables (set in `docker-compose.yml` → `frontend.build.args`, or in the shell for `npm run dev`):
 
@@ -331,8 +338,10 @@ Start the project (section 7), then follow the steps. Expected results are shown
 
 3. **Agent console**: click **Run agent for 2026-02-15**. The live trace shows the stages
    `PLAN → FETCH (TemporalGuard) → QC → PREDICT → ANALYZE → DECIDE → CRITIC → RECALC (change vs the previous day's forecast) → BRIEF → PUBLISH → DONE`.
-   The run ends with a new ledger block. Then click **Review & recalculate**: a `REVISION` block is published, and the trace states whether
-   the archived inputs changed.
+   The run ends with a new `FORECAST` block whose comparison records the prior issue date, comparable old/new overlap-input hashes,
+   24 shared hours, MAE/max change, and whether the forecast changed materially. Click **Manual uncertainty review** only to
+   request an explicitly labelled operator `REVISION` when weather inputs are unchanged. An automatic `new_nwp` check with
+   unchanged inputs instead publishes no revision.
 
 4. **Ledger tab**:
    - Click **Verify chain**. Expected: valid chain, no errors.

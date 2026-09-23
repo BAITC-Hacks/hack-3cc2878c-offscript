@@ -109,7 +109,7 @@ export async function startAgent(issueDate: string, mode: Mode, recalc = false):
     return { run_id: runId }
   }
   return api(recalc ? '/api/agent/recalc' : '/api/agent/run', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(recalc ? { issue_date: issueDate, mode, reason: 'manual_risk_review' } : { issue_date: issueDate, mode, use_llm: true }) })
+    body: JSON.stringify(recalc ? { issue_date: issueDate, mode, reason: 'manual_uncertainty_review' } : { issue_date: issueDate, mode, use_llm: true }) })
 }
 export async function getRun(runId: string): Promise<AgentRun> {
   if (mockMode) {
@@ -133,16 +133,18 @@ export function openAgentStream(runId: string, onEvent: (event: AgentEvent) => v
       const previousDate = new Date(new Date(`${run.issue_date}T00:00:00Z`).getTime() - 86_400_000).toISOString().slice(0, 10)
       const sequence: AgentEvent[] = mockRecalculations.has(runId) ? [{
         run_id: runId, seq: 0, ts: new Date().toISOString(), stage: 'RECALC', type: 'recalc',
-        title: `New archived weather run triggers a revised forecast for ${run.issue_date}`,
-        detail: { reason: 'new_nwp', demo: true }, actor: 'orchestrator', llm: null, duration_ms: null,
+        title: `Manual uncertainty review for ${run.issue_date}; no weather update is claimed`,
+        detail: { reason: 'manual_uncertainty_review', input_changed: false, demo: true }, actor: 'orchestrator', llm: null, duration_ms: null,
       }, ...events] : events
       let index = 0
       const tick = () => {
         if (cancelled || index >= sequence.length) return
         const source = sequence[index]
         let title = source.title.replaceAll('2026-02-14', run.issue_date).replaceAll('2026-02-13', previousDate).replaceAll('44%', `${Math.round(sampleForecast.summary.dayahead_mean_p50 * 100)}%`)
-        if (source.stage === 'PUBLISH' && typeof source.detail.hash === 'string') title = `Sample ledger publication · block #${source.detail.block_index} · ${source.detail.hash.slice(0, 8)}…`
-        const event = { ...source, title, run_id: runId, seq: index, ts: new Date().toISOString() }
+        if (source.stage === 'PUBLISH' && typeof source.detail.hash === 'string') title = `${mockRecalculations.has(runId) ? 'Sample manual uncertainty review' : 'Sample ledger publication'} · block #${source.detail.block_index} · ${source.detail.hash.slice(0, 8)}…`
+        const event = { ...source, title, run_id: runId, seq: index, ts: new Date().toISOString(),
+          detail: source.stage === 'PUBLISH' && mockRecalculations.has(runId)
+            ? { ...source.detail, revision_kind: 'manual_uncertainty_review', input_changed: false } : source.detail }
         index += 1
         mockRuns.get(runId)?.events.push(event)
         if (event.type === 'done') {

@@ -29,6 +29,11 @@ class Settings:
     demo_pacing: bool = _bool("DEMO_PACING", False)
     latency_h: int = int(os.getenv("NWP_LATENCY_H", "8"))
     capacity_mw: float = float(os.getenv("FARM_CAPACITY_MW", "5.0"))
+    nwp_watch_enabled: bool = _bool("NWP_WATCH_ENABLED", False)
+    nwp_watch_poll_seconds: int = max(5, int(os.getenv("NWP_WATCH_POLL_SECONDS", "60")))
+    nwp_watch_mode: str = os.getenv("NWP_WATCH_MODE", "test")
+    nwp_watch_issue_date: str | None = os.getenv("NWP_WATCH_ISSUE_DATE") or None
+    nwp_watch_use_llm: bool = _bool("NWP_WATCH_USE_LLM", False)
 
     @property
     def mocks_dir(self) -> Path:

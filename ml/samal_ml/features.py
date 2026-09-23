@@ -139,3 +139,21 @@ def input_sha256(frame: pd.DataFrame) -> str:
     normalized["target_time"] = pd.to_datetime(normalized["target_time"], utc=True).astype(str)
     payload = normalized.replace({np.nan: None}).to_dict(orient="records")
     return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+
+
+def input_fingerprints_by_target(frame: pd.DataFrame) -> dict[str, str]:
+    """Hash each selected weather row for cross-issue overlap comparison.
+
+    Lead hour is excluded because the same target has a different lead at the
+    next issue. Lead day is retained: a newer Previous Runs offset is a new
+    selected NWP input version even when its rounded wind happens to match.
+    """
+    normalized = frame.drop(columns=["lead_h"]).copy()
+    normalized["target_time"] = pd.to_datetime(normalized["target_time"], utc=True).dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    records = normalized.replace({np.nan: None}).to_dict(orient="records")
+    return {
+        row["target_time"]: hashlib.sha256(
+            json.dumps(row, sort_keys=True, separators=(",", ":"), default=str).encode()
+        ).hexdigest()
+        for row in records
+    }

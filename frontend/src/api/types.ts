@@ -69,6 +69,23 @@ export interface ForecastResult {
   flags: RiskFlag[]
   ledger?: { block_index: number; hash: string; verified: boolean } | null
   briefing?: { en: Briefing; ru: Briefing; kk: Briefing } | null
+  nwp_input_fingerprints?: Record<string, string>
+  recalculation?: RecalculationEvidence | null
+}
+
+export interface RecalculationEvidence {
+  path: 'historical_overlap' | 'same_issue_recalculation'
+  previous_issue_date: string
+  previous_block_index: number
+  old_input_sha256: string | null
+  new_input_sha256: string | null
+  input_changed: boolean | null
+  overlap_hours: number
+  mae: number | null
+  max_abs: number | null
+  forecast_materially_changed: boolean
+  reason: string
+  revision_kind?: 'weather_input_update' | 'manual_uncertainty_review'
 }
 
 export interface AgentEvent {
@@ -123,6 +140,8 @@ export interface LedgerBlock {
   source_release_time_verified?: boolean
   availability_evidence_status?: string
   latency_h?: number
+  revision_kind?: 'weather_input_update' | 'manual_uncertainty_review' | 'legacy_manual_uncertainty_review'
+  recalculation?: RecalculationEvidence
 }
 
 export interface LedgerData { length: number; head_hash: string; blocks: LedgerBlock[] }

@@ -10,7 +10,7 @@ from .ml_bridge import ml
 async def main(mode: str) -> None:
     for issue_date in ml.list_issue_dates(mode):
         run = app.state.runs.create(issue_date, mode)
-        await app.state.orchestrator.run(run, use_llm=False)
+        await app.state.orchestrator.run(run, use_llm=False, compare_previous_issue=True)
         print(f"{issue_date}: {run.status} ({run.decision})")
 
 

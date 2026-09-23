@@ -79,7 +79,15 @@ def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict[str, Any
             "availability_basis", "availability_policy_version", "source_release_time_verified",
             "source_release_time_evidence", "max_estimated_nwp_init_time_used", "configured_latency_h",
         )},
-        "inputs_sha256": hashlib.sha256(raw).hexdigest(), "n_rows": 48,
+        "inputs_sha256": hashlib.sha256(raw).hexdigest(),
+        "input_fingerprints_by_target": {
+            row["target_time"]: hashlib.sha256(
+                json.dumps({"target_time": row["target_time"], "lead_day": row["lead_day"],
+                            "nwp_v_hub": row["nwp_v_hub"], "temp_c": row["temp_c"]}, sort_keys=True).encode()
+            ).hexdigest()
+            for row in forecast["rows"]
+        },
+        "n_rows": 48,
     }
 
 

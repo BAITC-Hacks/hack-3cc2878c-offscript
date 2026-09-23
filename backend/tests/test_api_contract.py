@@ -28,6 +28,9 @@ def test_health_meta_and_forecast_contract(tmp_path: Path):
 
 def test_agent_run_completes_offline(tmp_path: Path):
     with TestClient(create_app(repo_root=tmp_path)) as client:
+        absent = client.post("/api/agent/recalc", json={"issue_date": "2026-02-15", "mode": "test",
+                                                         "reason": "new_nwp", "use_llm": False})
+        assert absent.status_code == 409
         launched = client.post("/api/agent/run", json={"issue_date": "2026-02-15", "mode": "test", "use_llm": False})
         assert launched.status_code == 200
         run_id = launched.json()["run_id"]
@@ -46,3 +49,14 @@ def test_agent_run_completes_offline(tmp_path: Path):
             body = "".join(stream.iter_text())
         assert "event: agent" in body
         assert '"type": "done"' in body
+
+
+def test_legacy_unchanged_input_revision_is_presented_as_manual_without_rehash(tmp_path: Path):
+    app = create_app(repo_root=tmp_path)
+    app.state.ledger.append("REVISION", [{"p50": 0.2}], issue_date="2026-02-14",
+                            note="manual_risk_review: ACCEPT; input_changed=False")
+    original = app.state.ledger.path.read_bytes()
+    with TestClient(app) as client:
+        block = client.get("/api/ledger").json()["blocks"][-1]
+    assert block["revision_kind"] == "legacy_manual_uncertainty_review"
+    assert app.state.ledger.path.read_bytes() == original

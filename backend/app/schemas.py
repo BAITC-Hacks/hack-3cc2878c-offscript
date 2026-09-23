@@ -59,6 +59,8 @@ class ForecastResult(SamalModel):
     rows: list[ForecastRow]
     summary: dict[str, float]
     flags: list[RiskFlag] = Field(default_factory=list)
+    nwp_input_fingerprints: dict[str, str] | None = None
+    recalculation: dict[str, Any] | None = None
 
 
 class BriefingRisk(SamalModel):
@@ -133,6 +135,8 @@ class LedgerBlock(SamalModel):
     max_scada_time_used: str | None = None
     latency_h: int | None = None
     note: str | None = None
+    revision_kind: Literal["weather_input_update", "manual_uncertainty_review", "legacy_manual_uncertainty_review"] | None = None
+    recalculation: dict[str, Any] | None = None
 
 
 class PlannerDecision(SamalModel):

@@ -14,7 +14,7 @@ import pandas as pd
 from .baselines import climatology, persistence, raw_power_curve
 from .config import FARM_CAPACITY_MW, HUB_HEIGHT_M, LAT, LATENCY_H, LON, NWP_MODELS, PATHS, TZ_NAME
 from .data import load_scada
-from .features import build_issue_frame, input_sha256
+from .features import build_issue_frame, input_fingerprints_by_target, input_sha256
 from .models import load_bundle, predict_bundle
 from .risk import risk_scan as _risk_scan
 from .temporal_guard import availability_policy_metadata
@@ -93,6 +93,7 @@ def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict:
             "source_release_time_evidence", "max_estimated_nwp_init_time_used", "configured_latency_h",
         )},
         "inputs_sha256": input_sha256(frame),
+        "input_fingerprints_by_target": input_fingerprints_by_target(frame),
         "n_rows": int(len(frame)),
     }
 

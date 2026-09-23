@@ -23,6 +23,7 @@ def issue_time_for(issue_date: str) -> str: ...              # "2026-01-30T19:00
 def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict: ...
     # → {"issue_time", "models_ok": [...], "models_missing": [...], "coverage": {model: 0..1},
     #    "max_nwp_init_time_used", "latency_h", "inputs_sha256", "n_rows",
+    #    "input_fingerprints_by_target": {target_time_utc: sha256_of_selected_weather_row},
     #    availability metadata listed in §4.2}   (data itself stays cached inside ml)
 def check_inputs(issue_date: str) -> dict: ...
     # → {"ok": bool, "issues": [{"code","severity","message"}], "spread_mean_ms": float, "models_ok": [...]}
@@ -48,7 +49,7 @@ Until A delivers, B uses `backend/app/ml_stub.py` which returns data from `share
 | GET | `/api/agent/stream/{run_id}` | – | **SSE** stream of AgentEvent §3, ends with `type:"done"` |
 | GET | `/api/agent/runs/{run_id}` | – | `{"run_id","status":"running|done|error","events":[AgentEvent…],"result":ForecastResult|null}` |
 | GET | `/api/agent/runs` | – | `[{"run_id","issue_date","status","started_at","decision"}]` |
-| POST | `/api/agent/recalc` | `{"issue_date":"2026-02-14","mode":"test","reason":"new_nwp","use_llm":true}` (`use_llm` optional, default true) | `{"run_id":"…"}` (stream it like a run) |
+| POST | `/api/agent/recalc` | `{"issue_date":"2026-02-14","mode":"test","reason":"new_nwp","use_llm":true}` (`use_llm` optional, default true; explicit operator review uses `reason:"manual_uncertainty_review"`) | `{"run_id":"…"}` (stream it like a run). Unchanged inputs with `new_nwp` publish no REVISION. |
 | GET | `/api/backtest` | `?mode=val_feb2025` | Metrics §4.5 |
 | GET | `/api/ledger` | – | `{"length":n,"head_hash":"…","blocks":[Block §4.6…]}` |
 | POST | `/api/ledger/verify` | – | `{"valid":true,"checked":n,"head_hash":"…","errors":[]}` |
@@ -105,6 +106,11 @@ Errors: `{"detail": "message"}` with proper HTTP code.
  "flags":[RiskFlag…]}
 ```
 `rows` has 48 items (lead 1..48). `actual` filled only in validation modes.
+Agent-published payloads additionally carry optional `nwp_input_fingerprints` (target-time → selected NWP feature-row SHA-256)
+and `recalculation` evidence. Replaying the next issue compares only its 24 shared target hours with the prior issue;
+whole-issue input hashes are recorded for provenance but are **not** compared across different horizons.
+`forecast_materially_changed` uses a fixed rule: overlap P50 MAE ≥ 0.05, max absolute P50 shift ≥ 0.10, or any
+new P50 outside the old P10–P90 band. An input-version change can be true while forecast materiality is false.
 `max_nwp_init_time_used` is retained for compatibility but is an **offset-derived estimate**, not a provider-supplied run timestamp.
 The configured 8-hour latency is an assumption; this policy does not independently verify the source publication time.
 
@@ -143,6 +149,14 @@ low confidence p90−p10 ≥ 0.50; disagreement std(v_hub across models) ≥ 2.5
  "max_estimated_nwp_init_time_used":"…","configured_latency_h":8,
  "note":"ACCEPT after 1 critic loop","prev_hash":"…","hash":"…"}
 ```
+New daily FORECAST blocks can include `recalculation:{path:"historical_overlap",previous_issue_date,
+old_input_sha256,new_input_sha256,old_issue_input_sha256,new_issue_input_sha256,input_changed,
+overlap_hours,mae,max_abs,hours_outside_old_band,forecast_materially_changed,reason}`.
+Same-issue REVISION blocks carry the same evidence with `path:"same_issue_recalculation"` and
+`revision_kind:"weather_input_update"|"manual_uncertainty_review"`. An automatic unchanged-input check writes a trace
+and DONE event with `published:false`, **not** a new block. A manual uncertainty review is explicitly labelled even when
+the selected weather inputs are unchanged. Historical anchored blocks are not retroactively given these fields; `/api/ledger`
+may derive `revision_kind:"legacy_manual_uncertainty_review"` from an old `input_changed=False` note for display only.
 `hash = sha256(canonical_json(block minus "hash"))`, canonical = `json.dumps(obj, sort_keys=True, separators=(",",":"), ensure_ascii=False)`.
 `payload_sha256` = sha256 of canonical JSON of the ForecastResult **rows** only (so adding the ledger/briefing fields doesn't change it).
 New blocks also store `payload_file_sha256` over the full immutable saved forecast file; legacy blocks predate this field and

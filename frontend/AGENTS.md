@@ -33,7 +33,8 @@ public/mocks/          copy of /shared/mocks (script: "predev": "cp -r ../shared
    - Button "▶ Run agent for {issue_date}" → POST /api/agent/run → open SSE → **AgentTimeline**: vertical stepper, each event = card with stage pill
      (PLAN/FETCH/…), actor icon (🤖 orchestrator, 🧐 critic, 🔧 tool, 🔗 ledger), title, collapsible JSON detail, duration, "LLM cached" tag.
    - Critic rejection = red card, then loop arrow back to PREDICT. Final card = decision + ledger block.
-   - Secondary button "↻ Simulate new NWP run (recalc)" → POST /api/agent/recalc.
+   - Secondary button "↻ Manual uncertainty review" → POST /api/agent/recalc with `reason:"manual_uncertainty_review"`;
+     never portray this action as an automatic weather update. A keyless opt-in backend watcher handles changed-NWP polling.
 3. **Backtest & Skill** (mode val_feb2025 / val_winter): KPI tiles NMAE, **Skill vs persistence**, **P10–P90 coverage** (target 80%);
    bar chart NMAE by model (hybrid highlighted vs persistence, climatology, raw_pc, mos_pc); line MAE by lead hour; calendar heatmap
    of daily MAE; reliability plot; series chart (actual vs p50 with band) for the whole month.

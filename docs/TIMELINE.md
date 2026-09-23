@@ -27,6 +27,7 @@ Integration syncs (2-min stand-up, everyone): **14:55 · 15:55 · 16:55 · 17:35
 
 ## 17:00 → 17:40  Polish & reproducibility (commit #5)
 - [x] (A) freeze models, commit `data/models`, `data/outputs`, `data/cache` (availability-evidence audit; models unchanged, replay outputs and cache sidecars refreshed)
+- [x] (B) distinguish daily overlap comparison, changed-input watcher recalculation, and explicit manual uncertainty review; unchanged inputs add no REVISION
 - [ ] (B) record demo runs with the real LLM (fills `data/llm_cache`) for 3 demo dates (a calm day, a ramp day, a disagreement day); commit
 - [ ] (C) README final (real metrics), 3 screenshots, slides (5–7), rehearse demo twice
 - [ ] (all) **Clean-clone test** on a second laptop: `git clone … && cp .env.example .env && docker compose up --build` → UI works with `LLM_PROVIDER=none`

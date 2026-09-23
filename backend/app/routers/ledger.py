@@ -11,8 +11,14 @@ class TamperRequest(BaseModel):
 @router.get("/api/ledger")
 def get_ledger(request: Request) -> dict:
     ledger = request.app.state.ledger
-    blocks = [{**block, "availability_evidence_status": ledger.policy_evidence_status(block)}
-              for block in ledger.blocks]
+    blocks = []
+    for block in ledger.blocks:
+        presented = {**block, "availability_evidence_status": ledger.policy_evidence_status(block)}
+        if (block.get("type") == "REVISION" and "revision_kind" not in block
+                and "input_changed=False" in str(block.get("note", ""))):
+            # Derived label only: historical anchored block bytes are unchanged.
+            presented["revision_kind"] = "legacy_manual_uncertainty_review"
+        blocks.append(presented)
     return {"length": len(blocks), "head_hash": ledger.blocks[-1]["hash"], "blocks": blocks}
 
 

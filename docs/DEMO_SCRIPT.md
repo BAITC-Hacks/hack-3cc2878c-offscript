@@ -19,8 +19,9 @@
    time) → forecast → risk scan finds a ramp → decider says accept → **Critic rejects: band too narrow for the model disagreement** → re-run
    widened → approved → briefing in Kazakh/Russian/English, numbers verified → sealed in ledger block #N.*
 3. Switch briefing to **KZ**.
-4. Ledger tab → **Verify ✓** → **Tamper demo** on one block → **red: chain broken at block N**. "The chain detects edits to anchored forecast payloads and re-checks our configured offset policy; it cannot independently verify Open-Meteo publication time."
-5. Backtest tab → one sentence on skill + coverage. Economics tab → savings number (say "illustrative assumptions").
+4. Run **15 Feb 2026** next: the RECALC trace compares 24 overlapping target hours with 14 Feb, showing comparable selected-NWP input hashes, forecast MAE/max change, and a new FORECAST block. The **Manual uncertainty review** button is explicitly operator-initiated; it must not be narrated as newly arrived weather. The optional cache watcher triggers a same-issue REVISION only after its selected input fingerprint changes.
+5. Ledger tab → **Verify ✓** → **Tamper demo** on one block → **red: chain broken at block N**. "The chain detects edits to anchored forecast payloads and re-checks our configured offset policy; it cannot independently verify Open-Meteo publication time."
+6. Backtest tab → one sentence on skill + coverage. Economics tab → savings number (say "illustrative assumptions").
 
 ## Likely jury questions (prepared answers)
 - **How do you check future-weather risk?** Open-Meteo *Previous Runs* supplies fixed offsets from 1–7 days. Our lead-day rule
@@ -29,7 +30,7 @@
   verified release times, so we do not claim exact publication-time proof.
 - **Why not just use actual weather (ERA5)?** That's leakage; the task forbids it. We use ERA5-like data nowhere in forecasting.
 - **Why is the agent needed if ML does the forecast?** The ML predicts; the agent *operates*: chooses models/variants when inputs are missing,
-  audits physical plausibility, decides re-issue when new NWP arrives, communicates risk. That is the job of a human forecaster today.
+  audits physical plausibility, compares daily overlap, re-issues only when selected NWP inputs change (or an operator explicitly requests a manual review), and communicates risk. The watcher monitors a configured local cache; it does not fetch fresh provider data on its own.
 - **What if the LLM hallucinates?** It never produces numbers; outputs are JSON-validated; briefing numbers are cross-checked against facts;
   rule-based fallback; the system runs fully without an LLM.
 - **Why P10/P90?** Grid operators and traders need risk: reserve sizing and bidding use quantiles, not a single line.

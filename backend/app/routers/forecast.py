@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from ..agent.briefing import template
 from ..ledger import sha
 from ..ml_bridge import ml
-from ..settings import settings
 
 router = APIRouter(tags=["forecast"])
 
@@ -20,14 +19,15 @@ def forecast(request: Request, issue_date: str = Query(...), variant: str = "hyb
         raise HTTPException(422, "Issue date is outside the selected schedule")
     result = None
     ledger = request.app.state.ledger
+    repo_root = request.app.state.orchestrator.repo_root
     for block in reversed(ledger.blocks):
         if block.get("issue_date") != issue_date or (block.get("variant") and block["variant"] != variant):
             continue
         payload_file = block.get("payload_file")
         if not payload_file:
             continue
-        published = (settings.repo_root / payload_file).resolve()
-        if not published.is_relative_to(settings.repo_root.resolve()) or not published.exists():
+        published = (repo_root / payload_file).resolve()
+        if not published.is_relative_to(repo_root.resolve()) or not published.exists():
             continue
         stored = json.loads(published.read_text(encoding="utf-8"))
         if stored.get("variant") == variant and stored.get("mode") == mode and sha(stored.get("rows", [])) == block.get("payload_sha256"):

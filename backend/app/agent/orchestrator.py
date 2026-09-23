@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from copy import deepcopy
 from datetime import date, timedelta
 import json
 from pathlib import Path
@@ -14,6 +15,7 @@ from ..settings import settings
 from . import policy
 from .briefing import briefings_are_grounded, template
 from .llm import LLM, LLMUnavailable
+from .recalculation import comparison
 
 
 class Orchestrator:
@@ -48,18 +50,29 @@ class Orchestrator:
 
     def _latest_published(self, issue_date: str, mode: str) -> tuple[dict[str, Any], dict[str, Any]] | None:
         for block in reversed(self.ledger.blocks):
-            if block.get("issue_date") != issue_date or not block.get("payload_file"):
+            if block.get("type") not in {"FORECAST", "REVISION"} or block.get("issue_date") != issue_date or not block.get("payload_file"):
                 continue
             path = (self.repo_root / block["payload_file"]).resolve()
             if not path.is_relative_to(self.repo_root.resolve()) or not path.exists():
                 continue
-            payload = json.loads(path.read_text(encoding="utf-8"))
+            raw = path.read_bytes()
+            if block.get("payload_file_sha256") and sha(raw) != block["payload_file_sha256"]:
+                continue
+            payload = json.loads(raw)
             if payload.get("mode") == mode and sha(payload.get("rows", [])) == block.get("payload_sha256"):
                 return block, payload
         return None
 
-    async def run(self, run: Run, *, use_llm: bool, recalc: bool = False, reason: str | None = None) -> None:
+    async def run(self, run: Run, *, use_llm: bool, recalc: bool = False, reason: str | None = None,
+                  compare_previous_issue: bool = True) -> None:
         try:
+            previous = self._latest_published(run.issue_date, run.mode) if recalc else None
+            manual_review = reason in {"manual_uncertainty_review", "manual_risk_review"}
+            if recalc and previous is None:
+                run.status = "error"
+                await run.emit("DONE", "error", "Recalculation requires a published forecast for this issue", "orchestrator",
+                               detail={"reason": reason or "new_nwp", "issue_date": run.issue_date})
+                return
             default_plan = policy.plan()
             if use_llm:
                 plan, plan_meta = await self._decision(run, "PLAN", "You are SAMAL's forecasting planner. Return JSON only.",
@@ -70,6 +83,11 @@ class Orchestrator:
             if not plan.models or any(model not in default_plan.models for model in plan.models):
                 await run.emit("PLAN", "warning", "Planner chose unavailable weather models; safe default plan restored", "orchestrator")
                 plan, plan_meta = default_plan, None
+            if previous:
+                # Recalculation must compare the same selected model set; a planner
+                # change is not evidence that a newer weather run arrived.
+                plan.models = previous[1]["nwp_models_used"]
+                plan.variant = previous[1]["variant"]
             await run.emit("PLAN", "stage_start", f"Planning offset-policy forecast for {run.issue_date}", "orchestrator")
             await run.emit("PLAN", "llm_decision", f"Plan selected {plan.variant} with {len(plan.models)} weather models", "orchestrator",
                            detail=plan.model_dump(), llm=plan_meta)
@@ -84,13 +102,38 @@ class Orchestrator:
             await run.emit("QC", "tool_result", "Input quality check completed", "tool", detail=qc)
             await self._pace()
 
-            previous = self._latest_published(run.issue_date, run.mode) if recalc else None
-            input_changed = bool(previous and previous[0].get("inputs_sha256") != inputs["inputs_sha256"])
+            old_input_hash = previous[0].get("inputs_sha256") if previous else None
+            input_changed = (old_input_hash != inputs["inputs_sha256"]) if old_input_hash else None
             if recalc:
-                await run.emit("RECALC", "recalc", "Updated weather detected" if input_changed else "Manual uncertainty review; archived weather unchanged",
-                               "orchestrator", detail={"reason": reason, "input_changed": input_changed,
-                                                       "previous_block": previous[0]["index"] if previous else None})
-            widen = 0.05 if recalc and not input_changed else 0.0
+                recalc_detail = {
+                    "path": "same_issue_recalculation", "previous_issue_date": previous[1]["issue_date"] if previous else None,
+                    "previous_block_index": previous[0]["index"] if previous else None,
+                    "old_input_sha256": old_input_hash,
+                    "new_input_sha256": inputs["inputs_sha256"], "input_changed": input_changed,
+                    "reason": reason or "new_nwp", "manual_review_requested": manual_review,
+                }
+                await run.emit("RECALC", "recalc", "New selected weather inputs detected" if input_changed is True else
+                               "Manual uncertainty review requested" if manual_review else
+                               "Prior input hash unavailable; no automatic revision" if input_changed is None else
+                               "Selected weather inputs unchanged; no revision required", "orchestrator", detail=recalc_detail)
+                if previous and input_changed is not True and not manual_review:
+                    no_change = {**recalc_detail, "overlap_hours": 48, "mae": None, "max_abs": None,
+                                 "forecast_materially_changed": False,
+                                 "comparison_status": "prior_input_hash_unavailable" if input_changed is None
+                                 else "not_recomputed_unchanged_inputs"}
+                    await run.emit("RECALC", "tool_result", "No automatic revision; forecast and ledger left unchanged", "tool",
+                                   detail=no_change)
+                    run.result = deepcopy(previous[1])
+                    run.result["recalculation"] = no_change
+                    run.result["ledger"] = {"block_index": previous[0]["index"], "hash": previous[0]["hash"],
+                                            "verified": self.ledger.verify()["valid"]}
+                    run.decision = "NO_CHANGE" if input_changed is False else "NO_COMPARABLE_BASELINE"
+                    run.status = "done"
+                    await run.emit("DONE", "done", "No automatic revision published", "orchestrator",
+                                   detail={"decision": run.decision, "published": False,
+                                           "block_index": previous[0]["index"], "reason": reason or "new_nwp"})
+                    return
+            widen = 0.05 if recalc and manual_review and input_changed is not True else 0.0
             forecast = ml.run_forecast(run.issue_date, variant=plan.variant, widen=widen, models=plan.models, mode=run.mode)
             flags = ml.risk_scan(forecast)
             await run.emit("PREDICT", "tool_result", "Probabilistic 48-hour forecast computed by ML engine", "tool",
@@ -134,28 +177,35 @@ class Orchestrator:
             if not critique.approve:
                 decider.action = "ESCALATE"
                 await run.emit("CRITIC", "warning", "Critic still rejects after two reruns; dispatcher escalation required", "critic")
+            recalculation: dict[str, Any] | None = None
+            revision_kind: str | None = None
             if recalc and previous:
                 diff = ml.forecast_diff(previous[1], forecast)
                 old_rows = {row["target_time"]: row for row in previous[1]["rows"]}
-                diff["quantile_changed_hours"] = sum(
+                quantile_changed_hours = sum(
                     1 for row in forecast["rows"] if row["target_time"] in old_rows and
                     (row["p10"] != old_rows[row["target_time"]]["p10"] or
                      row["p90"] != old_rows[row["target_time"]]["p90"])
                 )
-                diff["mean_band_delta"] = round(forecast["summary"]["mean_band"] - previous[1]["summary"]["mean_band"], 6)
-                await run.emit("RECALC", "tool_result", "Revision compared with the previous published forecast", "tool",
-                               detail={"input_changed": input_changed, **diff})
-            elif not recalc:
+                recalculation = comparison(previous[0], previous[1], inputs, forecast, diff,
+                                           path="same_issue_recalculation", reason=reason or "new_nwp")
+                recalculation["quantile_changed_hours"] = quantile_changed_hours
+                recalculation["mean_band_delta"] = round(forecast["summary"]["mean_band"] - previous[1]["summary"]["mean_band"], 6)
+                revision_kind = "weather_input_update" if input_changed is True else "manual_uncertainty_review"
+                recalculation["revision_kind"] = revision_kind
+                await run.emit("RECALC", "tool_result", "Weather-driven revision compared with prior forecast" if input_changed is True else
+                               "Manual uncertainty review compared with prior forecast", "tool", detail=recalculation)
+            elif not recalc and compare_previous_issue:
                 previous_issue = (date.fromisoformat(run.issue_date) - timedelta(days=1)).isoformat()
                 prior_daily = self._latest_published(previous_issue, run.mode)
                 if prior_daily:
                     diff = ml.forecast_diff(prior_daily[1], forecast)
                     if diff["overlap_hours"]:
+                        recalculation = comparison(prior_daily[0], prior_daily[1], inputs, forecast, diff,
+                                                   path="historical_overlap", reason="next_issue_newer_nwp")
                         await run.emit(
-                            "RECALC", "tool_result", "Daily issue updated the prior forecast's overlapping hours", "tool",
-                            detail={"previous_issue": previous_issue, "previous_block": prior_daily[0]["index"],
-                                    "old_nwp_init": prior_daily[1]["max_nwp_init_time_used"],
-                                    "new_nwp_init": forecast["max_nwp_init_time_used"], **diff},
+                            "RECALC", "tool_result", "Daily issue compared overlapping hours and selected NWP inputs", "tool",
+                            detail=recalculation,
                         )
             await self._pace()
 
@@ -178,11 +228,19 @@ class Orchestrator:
             await run.emit("BRIEF", "briefing", "Generated EN/RU/KK dispatcher briefings from computed facts", "orchestrator",
                            detail={"grounded": True, "generated_by": briefings.en.generated_by}, llm=briefing_meta)
             forecast["briefing"] = briefings.model_dump()
+            forecast["nwp_input_fingerprints"] = inputs.get("input_fingerprints_by_target", {})
+            if recalculation is not None:
+                forecast["recalculation"] = recalculation
             payload_path = self._write_forecast(forecast, run.run_id)
             if not any(block.get("model_version") == forecast["model_version"] for block in self.ledger.blocks):
                 self.ledger.append("MODEL_TRAINED", [], issue_time=forecast["issue_time"], model_version=forecast["model_version"], note="Model observed by backend")
             relative_payload = payload_path.relative_to(self.repo_root).as_posix()
             block_type = "REVISION" if recalc and previous else "FORECAST"
+            note = (
+                "manual uncertainty review; no confirmed weather input change" if revision_kind == "manual_uncertainty_review"
+                else "weather input update" if revision_kind == "weather_input_update"
+                else "daily issue with overlap comparison" if recalculation else "initial forecast"
+            )
             block = self.ledger.append(block_type, forecast["rows"], issue_date=run.issue_date, issue_time=forecast["issue_time"],
                                        variant=forecast["variant"],
                                        model_version=forecast["model_version"], payload_file=relative_payload,
@@ -195,12 +253,17 @@ class Orchestrator:
                                        source_release_time_evidence=forecast["source_release_time_evidence"],
                                        max_estimated_nwp_init_time_used=forecast["max_estimated_nwp_init_time_used"],
                                        configured_latency_h=forecast["configured_latency_h"],
-                                       note=(f"{reason or 'forecast'}: {decider.action} after {loops} critic loops"
-                                             + (f"; input_changed={input_changed}" if recalc else "")))
-            await run.emit("PUBLISH", "ledger", f"Published {block_type.lower()} as ledger block #{block['index']}", "ledger", detail={"block_index": block["index"], "hash": block["hash"]})
+                                       **({"recalculation": recalculation} if recalculation is not None else {}),
+                                       **({"revision_kind": revision_kind} if revision_kind is not None else {}),
+                                       note=f"{note}: {decider.action} after {loops} critic loops")
+            await run.emit("PUBLISH", "ledger", f"Published {block_type.lower()} as ledger block #{block['index']}", "ledger",
+                           detail={"block_index": block["index"], "hash": block["hash"], "block_type": block_type,
+                                   "revision_kind": revision_kind, "recalculation": recalculation})
             forecast["ledger"] = {"block_index": block["index"], "hash": block["hash"], "verified": self.ledger.verify()["valid"]}
             run.result, run.decision, run.status = forecast, decider.action, "done"
-            await run.emit("DONE", "done", "Agent cycle complete", "orchestrator", detail={"decision": decider.action, "block_index": block["index"], "loops": loops})
+            await run.emit("DONE", "done", "Agent cycle complete", "orchestrator",
+                           detail={"decision": decider.action, "block_index": block["index"], "loops": loops,
+                                   "published": True, "block_type": block_type, "revision_kind": revision_kind})
         except Exception as exc:
             run.status = "error"
             await run.emit("DONE", "error", "Agent cycle failed safely", "orchestrator", detail={"error": str(exc)})

@@ -17,7 +17,7 @@ wind farm in the **Shelek wind corridor (Almaty region, 43.645°N 78.536°E)**. 
 1. **Uses fixed lead-time-offset forecasts from three weather models** (ECMWF, GFS and ICON, via Open-Meteo's *Previous Runs API*). The API does not expose exact provider publication timestamps; archived offsets are selected under a configured latency assumption.
 2. **Enforces a configured availability policy (TemporalGuard):** code selects only `previous_day1..7` offsets satisfying the fixed-offset plus 8-hour margin rule. This is not independent proof of source release time.
 3. **Forecasts a range, not one number.** It gives P10/P50/P90: a low case, the median and a high case, using a physics-informed model. The chance that the real value falls inside P10–P90 is calibrated to ~80% (conformal calibration).
-4. **Runs as a self-auditing agent loop.** One LLM agent plans and calls tools. A second LLM agent (the "Critic") audits the result. The system recalculates when newer weather data arrives. Finally it writes a grid-dispatcher briefing in RU/KZ/EN, where every number is checked against the computed results, so no invented numbers.
+4. **Runs as a self-auditing agent loop.** One LLM agent plans and calls tools. A second LLM agent (the "Critic") audits the result. Each replay issue compares overlapping hours; an opt-in watcher recalculates a published issue when its selected cached NWP input version changes. Finally it writes a grid-dispatcher briefing in RU/KZ/EN, where every number is checked against the computed results, so no invented numbers.
 5. **Seals every forecast in a hash-chained ledger.** Each forecast is linked to the one before it, blockchain-style. This detects later changes to anchored payloads and records the configured offset-policy check; it does not certify when Open-Meteo released a source run. A "tamper" button shows the chain breaking live.
 
 Business value: in Kazakhstan's balancing electricity market, the grid operator KEGOC must cover the gap between
@@ -96,7 +96,8 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 │   PLAN ─▶ FETCH_NWP ─▶ QC ─▶ FEATURES ─▶ PREDICT ─▶ ANALYZE(risk flags) ─▶ CRITIC ─┬─▶ BRIEF ─▶ PUBLISH(ledger)          │
 │      ▲                                                                           │ reject (max 2)                        │
 │      └──────────────────────────── RERUN with other variant / widen intervals ◀──┘                                      │
-│   RECALC trigger: new NWP data for overlapping hours ─▶ diff > threshold ─▶ REVISION block                             │
+│   Daily replay: compare 24 overlapping hours + input hashes ─▶ new FORECAST with evidence                            │
+│   Opt-in cache watcher: changed selected NWP input hash ─▶ same-issue REVISION; unchanged ─▶ no block                 │
 │  LLM adapter: anthropic | openai | openai-compatible | none (rule-based)   + response cache (deterministic replay)       │
 │  Ledger: SHA-256 hash chain, temporal invariants, verify + tamper demo                                                  │
 └───────────────▲─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -205,8 +206,11 @@ CRITIC    second LLM (role: independent grid-dispatch auditor) reviews forecast+
 BRIEF     LLM → briefing JSON {headline, summary, risks[], actions[], confidence} in ru/kk/en
           Numeric grounding check: every number in the text must be in the facts table (±rounding) → else regenerate (max 2)
 PUBLISH   ledger.append(FORECAST block) + save forecast json
-RECALC    on "new data" event (next issue / newer NWP / manual button): recompute overlapping hours; if
-          MAE(new, published) > 0.05 or any hour leaves the published P10–P90 → REVISION block + short LLM note why
+RECALC    next replay issue: compare only shared target hours and their selected NWP row hashes, then save the
+          previous issue date, old/new overlap hashes, MAE/max change and reason in the new FORECAST block.
+          Same-issue NWP poll/API check: unchanged selected inputs → no new block; changed inputs → REVISION.
+          Explicit operator button → separately labelled manual uncertainty review REVISION, even without new weather.
+          Forecast materiality (MAE ≥ 0.05, max change ≥ 0.10, or outside old band) is recorded, not fabricated.
 ```
 Every transition emits an SSE event (`docs/CONTRACTS.md §3`) → the UI shows the agent "thinking" live.
 

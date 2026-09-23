@@ -24,6 +24,8 @@ async def run_agent(body: AgentRunRequest, request: Request) -> dict:
 
 @router.post("/api/agent/recalc")
 async def recalc(body: RecalcRequest, request: Request) -> dict:
+    if request.app.state.orchestrator._latest_published(body.issue_date, body.mode) is None:
+        raise HTTPException(409, "Publish a forecast for this issue before recalculating it")
     return await _start(request, body.issue_date, body.mode, body.use_llm, recalc=True, reason=body.reason)
 
 

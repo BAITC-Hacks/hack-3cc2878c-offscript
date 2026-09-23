@@ -45,8 +45,10 @@ CRITIC   critic.review(forecast summary + flags + decision)    → {"approve":bo
 BRIEF    briefing.generate(facts, langs=["en","ru","kk"])      → grounded briefings (or template)
 PUBLISH  ledger.append(FORECAST, payload=forecast rows, meta) + save forecast/briefing/run files → event ledger
 DONE     event done {decision, block_index, loops}
-RECALC   (endpoint /api/agent/recalc) re-run PREDICT with the newest data (e.g. the next issue's lower lead-days for overlapping
-         hours); ml.forecast_diff(old,new); if mae > 0.05 or hours_outside_old_band > 0 → REVISION block + llm note; else "no revision needed".
+RECALC   Every next replay issue compares shared target-hour input fingerprints and forecast MAE/max change, then records
+         the evidence in its new FORECAST block. The opt-in NWP watcher checks a published issue's selected-input hash;
+         unchanged → no revision, changed → same-issue REVISION. An explicit manual uncertainty review can publish a
+         separately labelled REVISION without claiming new weather.
 ```
 Facts passed to the LLM = compact JSON: summary, flags, per-model mean v_hub, spread, band width, top 6 hours by p50, metrics headline.
 **Never** send the full 48-row table unless needed; keep prompts < 3k tokens (cost + latency).

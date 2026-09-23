@@ -27,9 +27,17 @@ sequenceDiagram
 ```
 
 ## Recalculation ("when input data is updated")
-Each target hour is forecast twice in the replay: day-ahead (lead 24–47, older runs K=2/3) and intraday by the next issue (lead 1–23, K=1/2).
-`/api/agent/recalc` recomputes overlapping hours with the newest available lead-days, `forecast_diff()` → if material → `REVISION` block.
-In a live deployment the trigger is a scheduler polling Open-Meteo for a new model run (every 6 h).
+Each adjacent pair of 48-hour issues shares 24 target hours. The next issue compares those hours' selected-NWP
+feature-row hashes (excluding lead hour, retaining offset K) and forecast P50 values. It records the prior issue date,
+comparable old/new overlap hashes, whole-issue hashes for provenance, overlap count, MAE/max difference, materiality,
+and reason in its new FORECAST payload and ledger block. Legacy payloads without stored row hashes are reported as
+comparison-unavailable rather than retroactively "verified."
+
+For a published issue, `/api/agent/recalc` with `reason:"new_nwp"` publishes no block when its selected input hash is
+unchanged. Changed selected inputs publish a same-issue `REVISION`; `reason:"manual_uncertainty_review"` is a distinct,
+explicitly labelled operator path that may publish a review without new weather. The opt-in `NWPWatcher` polls the selected
+local archive fingerprint (default 60 s) and triggers the same-issue path once per changed version. It does not fetch
+fresh provider runs or assert their publication times; cache refresh is separate.
 
 ## Decisions (mini-ADRs)
 | Decision | Why |

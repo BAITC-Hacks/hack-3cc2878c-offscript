@@ -21,6 +21,8 @@
  "latency_h": 8,
  "capacity_mw": 5.0,
  "widen": 0.05,
+ "nwp_input_fingerprints": {},
+ "recalculation": null,
  "rows": [
   {
    "target_time": "2026-02-13T20:00:00Z",
