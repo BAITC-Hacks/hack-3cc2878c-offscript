@@ -1,4 +1,4 @@
-# SAMAL: Self-Auditing Multi-model Agentic Loop for wind-farm power forecasting
+# SAMAL: Self-Auditing Multi-model Agentic Loop for wind-farm power forecasting.
 **HackAlem AI 2026 · Case: Agentic AI for Wind Farm Generation Forecasting (ВЭС).**
 
 SAMAL is an AI agent that produces **hourly probabilistic (P10/P50/P90) generation forecasts 24–48 h ahead** for a two-turbine wind farm
