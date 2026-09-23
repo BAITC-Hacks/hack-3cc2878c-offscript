@@ -11,19 +11,19 @@ Integration syncs (2-min stand-up, everyone): **14:55 · 15:55 · 16:55 · 17:35
 - [ ] (C) Vite+React+TS+Tailwind scaffold, tabs layout, mocks copied to `public/mocks`
 
 ## 14:00 → 15:00  Foundations (commit #2)
-- A: [ ] `data.py` hourly farm series + flags  [ ] tz lag check  [ ] `weather.py` fetch all chunks → `data/cache/nwp/` **commit the cache**  [ ] `temporal_guard.py` + test
+- A: [x] `data.py` hourly farm series + flags  [ ] tz lag check  [x] `weather.py` fetch all chunks → `data/cache/nwp/` **commit the cache**  [x] `temporal_guard.py` + test
 - B: [ ] `llm.py` (anthropic/openai/compatible/none + cache)  [ ] `ledger.py` + `test_ledger.py`  [ ] `runs.py` + SSE endpoint replaying mock events
 - C: [ ] `api/client.ts` + `types.ts` (mock mode)  [ ] Forecast page: FanChart + flags + briefing card + ledger badge
 
 ## 15:00 → 16:00  Core (commit #3)
-- A: [ ] features (per-model, cross-model, physics)  [ ] power curve (isotonic)  [ ] MOS wind + quantile HGB  [ ] `validate --mode val_feb2025` → metrics json (first numbers!)
+- A: [x] features (per-model, cross-model, physics)  [x] power curve (isotonic)  [x] MOS wind + quantile HGB  [x] `validate --mode val_feb2025` → metrics json (first numbers!)
 - B: [ ] orchestrator state machine with tools on stub  [ ] policy.py fallback  [ ] prompts (planner/decider/critic/briefing)  [ ] `/api/agent/run` + stream end-to-end
 - C: [ ] Agent Console timeline (SSE, mock replay)  [ ] Backtest page (KPI tiles, model bars, MAE-by-lead, heatmap)
 
 ## 16:00 → 17:00  Integration (commit #4)
-- A: [ ] conformal widen  [ ] baselines in metrics  [ ] `test-run` → submission CSVs (672 rows)  [ ] `api.py` complete → tell B "real ml ready"
-- B: [ ] switch `USE_ML_STUB=0`  [ ] critic loop + briefing grounding  [ ] recalc endpoint + REVISION block  [ ] verify + tamper endpoints  [ ] `app.batch` over test issues
-- C: [ ] Ledger page (verify/tamper)  [ ] Economics page  [ ] switch to real API (`VITE_USE_MOCKS=0`)  [ ] start README final + screenshots
+- A: [x] conformal widen  [x] baselines in metrics  [x] `test-run` → submission CSVs (672 rows)  [x] `api.py` complete → tell B "real ml ready"
+- B: [x] switch `USE_ML_STUB=0`  [x] critic loop + briefing grounding  [x] recalc endpoint + REVISION block  [x] verify + tamper endpoints  [ ] `app.batch` over test issues
+- C: [x] Ledger page (verify/tamper)  [x] Economics page  [x] switch to real API (`VITE_USE_MOCKS=0`)  [x] start README final  [ ] screenshots
 
 ## 17:00 → 17:40  Polish & reproducibility (commit #5)
 - [ ] (A) freeze models, commit `data/models`, `data/outputs`, `data/cache`

@@ -4,3 +4,6 @@ Format: `HH:MM [A|B|C] what was done`. Commit after each line or batch of lines.
 - 13:45 [all] Task chosen (Wind farm forecasting, Agentic AI). Plan, contracts, agent instructions, folder skeleton created.
 - 13:58 [all] Docs complete: PROJECT_PLAN, AGENTS (root+3 folders), CONTRACTS, TIMELINE, RULES_CHECKLIST, DEMO_SCRIPT, ARCHITECTURE, README skeleton, mocks, docker-compose, Makefile.
 - 13:52 [A] Organizer SCADA copied unchanged to `data/raw/turbine_1.csv` and `data/raw/turbine_2.csv`; both are 10-minute streams from 2023-03-11 through 2026-01-31 with the expected four Russian fields.
+- 15:32 [A] Cached three archived NWP model histories, trained test and validation models, replayed both validations and all 28 February 2026 issues; submission has 672 unique day-ahead hours.
+- 15:32 [B] Switched to real ML/OpenAI; verified planner, decider, critic, AI briefing, exact-match ledger proof, immutable payloads, and tamper detection.
+- 15:32 [C] Switched Vite to the live API; checked all five dashboard tabs, winter and seasonal metrics, AI briefing, ledger, economics, and a clean browser console.

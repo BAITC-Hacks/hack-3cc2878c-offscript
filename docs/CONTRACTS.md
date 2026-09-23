@@ -41,13 +41,13 @@ Until A delivers, B uses `backend/app/ml_stub.py` which returns data from `share
 |---|---|---|---|
 | GET | `/api/health` | – | `{"status":"ok","version":"0.1.0","llm_provider":"none","weather_offline":true}` |
 | GET | `/api/meta` | – | Meta §4.1 |
-| GET | `/api/forecast` | `?issue_date=2026-02-14&variant=hybrid&mode=test` | ForecastResult §4.2 **plus** `"ledger": {"block_index":12,"hash":"…","verified":true}` and `"briefing": Briefings §4.4 or null` |
+| GET | `/api/forecast` | `?issue_date=2026-02-14&variant=hybrid&mode=test` | ForecastResult §4.2 **plus** `"ledger": {"block_index":12,"hash":"…","verified":true}` only when that exact row payload was published (otherwise absent/null), and `"briefing": Briefings §4.4 or null` |
 | GET | `/api/series` | `?mode=val_feb2025` | `{"mode","rows":[{"target_time","p10","p50","p90","actual"}]}` |
 | POST | `/api/agent/run` | `{"issue_date":"2026-02-14","mode":"test","use_llm":true}` | `{"run_id":"r_20260214_ab12"}` |
 | GET | `/api/agent/stream/{run_id}` | – | **SSE** stream of AgentEvent §3, ends with `type:"done"` |
 | GET | `/api/agent/runs/{run_id}` | – | `{"run_id","status":"running|done|error","events":[AgentEvent…],"result":ForecastResult|null}` |
 | GET | `/api/agent/runs` | – | `[{"run_id","issue_date","status","started_at","decision"}]` |
-| POST | `/api/agent/recalc` | `{"issue_date":"2026-02-14","mode":"test","reason":"new_nwp"}` | `{"run_id":"…"}` (stream it like a run) |
+| POST | `/api/agent/recalc` | `{"issue_date":"2026-02-14","mode":"test","reason":"new_nwp","use_llm":true}` (`use_llm` optional, default true) | `{"run_id":"…"}` (stream it like a run) |
 | GET | `/api/backtest` | `?mode=val_feb2025` | Metrics §4.5 |
 | GET | `/api/ledger` | – | `{"length":n,"head_hash":"…","blocks":[Block §4.6…]}` |
 | POST | `/api/ledger/verify` | – | `{"valid":true,"checked":n,"head_hash":"…","errors":[]}` |
