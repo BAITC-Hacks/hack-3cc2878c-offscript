@@ -22,7 +22,8 @@ def list_issue_dates(mode: Mode) -> list[str]: ...           # ["2026-01-31", ..
 def issue_time_for(issue_date: str) -> str: ...              # "2026-01-30T19:00:00Z"
 def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict: ...
     # → {"issue_time", "models_ok": [...], "models_missing": [...], "coverage": {model: 0..1},
-    #    "max_nwp_init_time_used", "latency_h", "inputs_sha256", "n_rows"}   (data itself stays cached inside ml)
+    #    "max_nwp_init_time_used", "latency_h", "inputs_sha256", "n_rows",
+    #    availability metadata listed in §4.2}   (data itself stays cached inside ml)
 def check_inputs(issue_date: str) -> dict: ...
     # → {"ok": bool, "issues": [{"code","severity","message"}], "spread_mean_ms": float, "models_ok": [...]}
 def run_forecast(issue_date: str, variant: Variant = "hybrid", widen: float = 0.0,
@@ -91,6 +92,10 @@ Errors: `{"detail": "message"}` with proper HTTP code.
  "model_version":"hybrid-qhgb-train2026-01-31-3f2a9c",
  "nwp_models_used":["ecmwf_ifs025","gfs_seamless","icon_seamless"],
  "max_nwp_init_time_used":"2026-02-13T11:00:00Z","max_scada_time_used":"2026-02-13T18:00:00Z","latency_h":8,
+ "availability_basis":"fixed_previous_runs_offset_plus_configured_latency",
+ "availability_policy_version":"previous-runs-offset-v1","source_release_time_verified":false,
+ "source_release_time_evidence":"not_provided_by_open_meteo_previous_runs_api",
+ "max_estimated_nwp_init_time_used":"2026-02-13T11:00:00Z","configured_latency_h":8,
  "capacity_mw":5.0,"widen":0.0,
  "rows":[{"target_time":"2026-02-13T20:00:00Z","target_time_local":"2026-02-14T01:00:00+05:00",
           "lead_h":1,"lead_day":1,"p10":0.12,"p50":0.31,"p90":0.55,
@@ -100,6 +105,8 @@ Errors: `{"detail": "message"}` with proper HTTP code.
  "flags":[RiskFlag…]}
 ```
 `rows` has 48 items (lead 1..48). `actual` filled only in validation modes.
+`max_nwp_init_time_used` is retained for compatibility but is an **offset-derived estimate**, not a provider-supplied run timestamp.
+The configured 8-hour latency is an assumption; this policy does not independently verify the source publication time.
 
 ### §4.3 RiskFlag
 `{"code":"RAMP_UP|RAMP_DOWN|ICING|CUT_OUT|LOW_CONFIDENCE|MODEL_DISAGREEMENT|DATA_GAP","severity":"info|warn|critical",
@@ -129,11 +136,20 @@ low confidence p90−p10 ≥ 0.50; disagreement std(v_hub across models) ≥ 2.5
 ```json
 {"index":12,"type":"GENESIS|MODEL_TRAINED|FORECAST|REVISION","issue_date":"2026-02-14","issue_time":"2026-02-13T19:00:00Z",
  "created_at":"2026-09-23T10:15:09Z","model_version":"…","payload_file":"data/outputs/forecasts/test/2026-02-14.json",
- "payload_sha256":"…","inputs_sha256":"…","max_nwp_init_time_used":"…","max_scada_time_used":"…","latency_h":8,
+ "payload_sha256":"…","payload_file_sha256":"…","inputs_sha256":"…","max_nwp_init_time_used":"…","max_scada_time_used":"…","latency_h":8,
+ "availability_basis":"fixed_previous_runs_offset_plus_configured_latency",
+ "availability_policy_version":"previous-runs-offset-v1","source_release_time_verified":false,
+ "source_release_time_evidence":"not_provided_by_open_meteo_previous_runs_api",
+ "max_estimated_nwp_init_time_used":"…","configured_latency_h":8,
  "note":"ACCEPT after 1 critic loop","prev_hash":"…","hash":"…"}
 ```
 `hash = sha256(canonical_json(block minus "hash"))`, canonical = `json.dumps(obj, sort_keys=True, separators=(",",":"), ensure_ascii=False)`.
 `payload_sha256` = sha256 of canonical JSON of the ForecastResult **rows** only (so adding the ledger/briefing fields doesn't change it).
+New blocks also store `payload_file_sha256` over the full immutable saved forecast file; legacy blocks predate this field and
+retain their original row-only hash coverage. Neither hash attests the provider's publication time.
+Existing anchored blocks are never rewritten. `/api/ledger` adds a derived `availability_evidence_status` per block;
+`/api/ledger/verify` lists `legacy_policy_evidence_blocks` separately from integrity errors. Legacy blocks remain hash-valid
+but do not claim the new policy metadata. Neither status proves the provider's actual release time.
 
 ### §4.7 Economics
 ```json
@@ -149,6 +165,7 @@ low confidence p90−p10 ≥ 0.50; disagreement std(v_hub across models) ≥ 2.5
 |---|---|---|
 | `data/raw/*` | organizers | SCADA, never modified |
 | `data/cache/nwp/{model}_{YYYYMMDD}_{YYYYMMDD}.csv.gz` | A | `time` (UTC) + `{var}_previous_day{K}` columns |
+| `data/cache/nwp/{model}_{YYYY-MM-DD}_{YYYY-MM-DD}.csv.gz.manifest.json` | A | request URL/parameters plus capture-vs-reconstruction status, retrieval timestamp if captured, cache SHA-256, policy version, explicit unavailable release-time evidence; legacy chunks have `retrieved_at:null` |
 | `data/cache/scada_hourly.csv.gz` | A | cleaned hourly farm series + flags |
 | `data/outputs/forecasts/{mode}/{issue_date}.json` | A (batch) / B (agent) | ForecastResult |
 | `data/outputs/metrics/{mode}.json` | A | Metrics |

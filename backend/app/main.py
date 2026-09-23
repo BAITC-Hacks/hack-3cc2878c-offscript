@@ -19,7 +19,7 @@ def create_app(*, repo_root: Path | None = None) -> FastAPI:
     async def lifespan(app: FastAPI):
         yield
 
-    app = FastAPI(title="SAMAL API", version="0.1.0", description="Leakage-proof agentic wind-farm forecasting service.", lifespan=lifespan)
+    app = FastAPI(title="SAMAL API", version="0.1.0", description="Agentic wind-farm forecasting with a configured Previous Runs availability check and tamper-evident ledger; provider release times are not verified.", lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
     app.state.settings = settings
     root = repo_root or settings.repo_root

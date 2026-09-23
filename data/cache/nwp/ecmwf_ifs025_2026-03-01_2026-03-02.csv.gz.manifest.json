@@ -1,0 +1,30 @@
+{
+  "api_endpoint_version": "v1/forecast",
+  "availability_policy_version": "previous-runs-offset-v1",
+  "cache_artifact": "ecmwf_ifs025_2026-03-01_2026-03-02.csv.gz",
+  "cache_sha256": "ccae644b5028dad43367a334243c41e2548ca736788a4f78475b1f90b488eae6",
+  "manifest_created_at": "2026-09-23T11:44:46.785619Z",
+  "model": "ecmwf_ifs025",
+  "provenance_status": "legacy_cache_retrieval_time_unavailable",
+  "request_parameters": {
+    "end_date": "2026-03-02",
+    "hourly": "wind_speed_10m_previous_day1,wind_speed_10m_previous_day2,wind_speed_10m_previous_day3,wind_speed_100m_previous_day1,wind_speed_100m_previous_day2,wind_speed_100m_previous_day3,wind_direction_10m_previous_day1,wind_direction_10m_previous_day2,wind_direction_10m_previous_day3,wind_direction_100m_previous_day1,wind_direction_100m_previous_day2,wind_direction_100m_previous_day3,temperature_2m_previous_day1,temperature_2m_previous_day2,temperature_2m_previous_day3,relative_humidity_2m_previous_day1,relative_humidity_2m_previous_day2,relative_humidity_2m_previous_day3,surface_pressure_previous_day1,surface_pressure_previous_day2,surface_pressure_previous_day3",
+    "latitude": "43.6442",
+    "longitude": "78.5372",
+    "models": "ecmwf_ifs025",
+    "start_date": "2026-03-01",
+    "timezone": "GMT",
+    "wind_speed_unit": "ms"
+  },
+  "request_record_status": "reconstructed_from_filename_and_current_fetch_config",
+  "request_url": "https://previous-runs-api.open-meteo.com/v1/forecast?latitude=43.6442&longitude=78.5372&hourly=wind_speed_10m_previous_day1%2Cwind_speed_10m_previous_day2%2Cwind_speed_10m_previous_day3%2Cwind_speed_100m_previous_day1%2Cwind_speed_100m_previous_day2%2Cwind_speed_100m_previous_day3%2Cwind_direction_10m_previous_day1%2Cwind_direction_10m_previous_day2%2Cwind_direction_10m_previous_day3%2Cwind_direction_100m_previous_day1%2Cwind_direction_100m_previous_day2%2Cwind_direction_100m_previous_day3%2Ctemperature_2m_previous_day1%2Ctemperature_2m_previous_day2%2Ctemperature_2m_previous_day3%2Crelative_humidity_2m_previous_day1%2Crelative_humidity_2m_previous_day2%2Crelative_humidity_2m_previous_day3%2Csurface_pressure_previous_day1%2Csurface_pressure_previous_day2%2Csurface_pressure_previous_day3&models=ecmwf_ifs025&start_date=2026-03-01&end_date=2026-03-02&wind_speed_unit=ms&timezone=GMT",
+  "requested_date_range": {
+    "end": "2026-03-02",
+    "start": "2026-03-01"
+  },
+  "response_headers": null,
+  "response_schema_version": null,
+  "retrieved_at": null,
+  "source_release_time_evidence": "not_provided_by_open_meteo_previous_runs_api",
+  "source_release_time_verified": false
+}

@@ -42,8 +42,17 @@ def forecast(request: Request, issue_date: str = Query(...), variant: str = "hyb
                   if block.get("issue_date") == issue_date and block.get("payload_sha256") == payload_hash), None)
     if proof:
         result["ledger"] = {"block_index": proof["index"], "hash": proof["hash"], "verified": ledger.verify()["valid"]}
+        result["availability_evidence_status"] = ledger.policy_evidence_status(proof)
     else:
         result.pop("ledger", None)
+        result["availability_evidence_status"] = (
+            "configured_policy_v1_source_release_unverified" if result.get("availability_policy_version")
+            else "legacy_policy_evidence"
+        )
+    if result["availability_evidence_status"] == "legacy_policy_evidence":
+        # Derived response annotations only: never modify an anchored payload.
+        result.setdefault("max_estimated_nwp_init_time_used", result.get("max_nwp_init_time_used"))
+        result["source_release_time_verified"] = False
     result["briefing"] = result.get("briefing") or template(result, flags).model_dump()
     return result
 

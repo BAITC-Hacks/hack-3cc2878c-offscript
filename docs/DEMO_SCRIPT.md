@@ -1,7 +1,7 @@
 # DEMO SCRIPT & PITCH: SAMAL (3 minutes + Q&A). Owner: Person C (everyone rehearses)
 
 ## Slides (5–7)
-1. **Title**: SAMAL: Self-Auditing Multi-model Agentic Loop. "An AI dispatcher that forecasts wind power 48 h ahead and proves it didn't cheat."
+1. **Title**: SAMAL: Self-Auditing Multi-model Agentic Loop. "An AI dispatcher that forecasts wind power 48 h ahead with an auditable availability policy."
 2. **Problem**: wind output is volatile; day-ahead schedule errors mean imbalances the grid (KEGOC) must cover in the balancing
    market; Kazakhstan is scaling wind & solar (national renewables targets), so forecast quality = money + grid stability.
    *(Verify exact market rules/targets before quoting numbers: Ministry of Energy balancing market rules, order №112, amended 2023.)*
@@ -9,24 +9,24 @@
 4. **Live demo** (below).
 5. **Results**: validation Feb 2025 ("seasonal twin" of the Feb 2026 test): NMAE X%, skill vs persistence +Y%, P10–P90 coverage Z% (target 80%).
    Fill from `data/outputs/metrics/val_feb2025.json`. Show MAE-by-lead chart.
-6. **Why it's different**: probabilistic, leakage-proof by construction *and* by cryptographic proof, self-auditing agent, works offline.
+6. **Why it's different**: probabilistic, configured fixed-offset availability checks, tamper-evident forecasts, self-auditing agent, works offline.
 7. **Scale**: any wind/solar farm = coordinates + SCADA; KEGOC / Samruk-Energy / private IPPs; next: solar, portfolio aggregation,
    bidding optimizer on P10/P90, Telegram alerts for dispatchers.
 
 ## Live demo flow (≈ 90 s): practise with LLM on AND off
 1. Forecast tab → issue date **14 Feb 2026** → fan chart: "band = uncertainty; dashed lines = the three weather models disagree here".
-2. Agent Console → **Run agent** → narrate while it streams: *plan → fetch 3 models (TemporalGuard ✓: newest run used is 8 h older than issue
+2. Agent Console → **Run agent** → narrate while it streams: *plan → select 3 models (TemporalGuard ✓: estimated initialization time plus configured 8 h margin is no later than issue
    time) → forecast → risk scan finds a ramp → decider says accept → **Critic rejects: band too narrow for the model disagreement** → re-run
    widened → approved → briefing in Kazakh/Russian/English, numbers verified → sealed in ledger block #N.*
 3. Switch briefing to **KZ**.
-4. Ledger tab → **Verify ✓** → **Tamper demo** on one block → **red: chain broken at block N**. "Nobody, including us, can edit a
-   published forecast or backdate it with future data without it being detected."
+4. Ledger tab → **Verify ✓** → **Tamper demo** on one block → **red: chain broken at block N**. "The chain detects edits to anchored forecast payloads and re-checks our configured offset policy; it cannot independently verify Open-Meteo publication time."
 5. Backtest tab → one sentence on skill + coverage. Economics tab → savings number (say "illustrative assumptions").
 
 ## Likely jury questions (prepared answers)
-- **How do you guarantee no future weather data?** Open-Meteo *Previous Runs* archive: values exactly as forecast N days before. Lead-day rule
-  K = ceil((lead+8 h)/24) guarantees the run was published before issue time; unit-tested; each ledger block stores the newest input
-  time and verification re-checks it.
+- **How do you check future-weather risk?** Open-Meteo *Previous Runs* supplies fixed offsets from 1–7 days. Our lead-day rule
+  K = ceil((lead+8 h)/24) checks an estimated initialization time against the issue time with an assumed 8-hour margin;
+  tests cover policy boundaries, and new ledger blocks record the estimate and policy version. The API does not provide
+  verified release times, so we do not claim exact publication-time proof.
 - **Why not just use actual weather (ERA5)?** That's leakage; the task forbids it. We use ERA5-like data nowhere in forecasting.
 - **Why is the agent needed if ML does the forecast?** The ML predicts; the agent *operates*: chooses models/variants when inputs are missing,
   audits physical plausibility, decides re-issue when new NWP arrives, communicates risk. That is the job of a human forecaster today.

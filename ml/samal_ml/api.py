@@ -17,6 +17,7 @@ from .data import load_scada
 from .features import build_issue_frame, input_sha256
 from .models import load_bundle, predict_bundle
 from .risk import risk_scan as _risk_scan
+from .temporal_guard import availability_policy_metadata
 from .weather import cache_coverage, load_nwp_cache
 
 Mode = Literal["test", "val_feb2025", "val_winter"]
@@ -62,7 +63,8 @@ def get_meta() -> dict:
         "nwp_models": list(NWP_MODELS),
         "variants": ["hybrid", "mos_pc", "raw_pc", "climatology", "persistence"],
         "issue_dates": {mode: list_issue_dates(mode) for mode in ("test", "val_feb2025", "val_winter")},
-        "temporal_guard": {"latency_h": LATENCY_H, "rule": "K = ceil((lead_h + latency_h)/24)"},
+        "temporal_guard": {"latency_h": LATENCY_H, "rule": "K = ceil((lead_h + latency_h)/24)",
+                           **availability_policy_metadata()},
     }
 
 
@@ -86,6 +88,10 @@ def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict:
         "coverage": coverage,
         "max_nwp_init_time_used": audit["max_nwp_init_time_used"],
         "latency_h": LATENCY_H,
+        **{key: audit[key] for key in (
+            "availability_basis", "availability_policy_version", "source_release_time_verified",
+            "source_release_time_evidence", "max_estimated_nwp_init_time_used", "configured_latency_h",
+        )},
         "inputs_sha256": input_sha256(frame),
         "n_rows": int(len(frame)),
     }
@@ -188,6 +194,10 @@ def run_forecast(
         "max_nwp_init_time_used": audit["max_nwp_init_time_used"],
         "max_scada_time_used": _stamp(scada.loc[scada.index <= issue].index.max()),
         "latency_h": LATENCY_H,
+        **{key: audit[key] for key in (
+            "availability_basis", "availability_policy_version", "source_release_time_verified",
+            "source_release_time_evidence", "max_estimated_nwp_init_time_used", "configured_latency_h",
+        )},
         "capacity_mw": FARM_CAPACITY_MW,
         "widen": widen,
         "rows": rows,

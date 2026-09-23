@@ -18,6 +18,9 @@ def test_health_meta_and_forecast_contract(tmp_path: Path):
         forecast = response.json()
         assert len(forecast["rows"]) == 48
         assert forecast["issue_time"] == "2026-02-13T19:00:00Z"
+        assert forecast["availability_policy_version"] == "previous-runs-offset-v1"
+        assert forecast["source_release_time_verified"] is False
+        assert forecast["max_estimated_nwp_init_time_used"] == forecast["max_nwp_init_time_used"]
         assert all(row["p10"] <= row["p50"] <= row["p90"] for row in forecast["rows"])
         # A computed-but-unpublished forecast must not borrow another block's proof.
         assert forecast.get("ledger") is None or forecast["ledger"]["verified"] is True
@@ -35,6 +38,10 @@ def test_agent_run_completes_offline(tmp_path: Path):
             time.sleep(0.05)
         assert status["status"] == "done"
         assert status["result"]["ledger"]["verified"] is True
+        blocks = client.get("/api/ledger").json()["blocks"]
+        latest = next(block for block in reversed(blocks) if block["type"] == "FORECAST")
+        assert latest["availability_evidence_status"] == "configured_policy_v1_source_release_unverified"
+        assert latest["source_release_time_verified"] is False
         with client.stream("GET", f"/api/agent/stream/{run_id}") as stream:
             body = "".join(stream.iter_text())
         assert "event: agent" in body

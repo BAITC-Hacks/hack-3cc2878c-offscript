@@ -1,7 +1,7 @@
 # AGENTS.md: instructions for AI coding agents (Claude Code, Codex, Cursor, …)
 
 You are helping a 3-person team at **HackAlem AI 2026** (5-hour hackathon, hard deadline **18:00 Asia/Almaty**).
-Project: **SAMAL**, an agentic, probabilistic, leakage-proof wind-farm power forecaster. Read in this order:
+Project: **SAMAL**, an agentic, probabilistic wind-farm power forecaster with a configured NWP availability policy. The Previous Runs API does not verify source release timestamps. Read in this order:
 
 0. `START_HERE.md`: 2-minute quick start + kickoff prompts
 1. `PROJECT_PLAN.md`: what we build and why (the master plan)

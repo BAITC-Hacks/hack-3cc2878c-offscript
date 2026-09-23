@@ -24,7 +24,7 @@ ml/
     api.py                CONTRACTS §1 functions (thin wrappers)
     cli.py                python -m samal_ml.cli {inspect|fetch|train|validate|test-run|evaluate|live}
   tests/
-    test_temporal_guard.py   ← MUST exist (proof of no lookahead)
+    test_temporal_guard.py   ← MUST exist (configured offset-policy boundary checks)
     test_api_shapes.py       ← outputs match CONTRACTS
 ```
 
@@ -63,15 +63,17 @@ def build_url(model, start, end, days=(1,2,3)):
 ```python
 import math
 def lead_day(lead_h: int, latency_h: int = LATENCY_H) -> int:
-    return min(7, math.ceil((lead_h + latency_h) / 24))          # 1..16→1, 17..40→2, 41..48→3 (latency 8)
-def est_init_time(target_time, k):                                 # upper bound of the run init that produced previous_dayK
+    return math.ceil((lead_h + latency_h) / 24)                  # validate lead 1..48 and K 1..7; no silent capping
+def est_init_time(target_time, k):                                 # offset-derived estimate, not source run metadata
     return target_time - pd.Timedelta(hours=24 * k)
 def assert_no_lookahead(rows, issue_time, latency_h=LATENCY_H):
     for r in rows:                                                 # r has target_time, lead_day
         assert est_init_time(r.target_time, r.lead_day) + pd.Timedelta(hours=latency_h) <= issue_time
 ```
 `test_temporal_guard.py`: for 1000 random (issue_time, lead) pairs assert the invariant; assert SCADA features ≤ issue_time.
-Every ForecastResult must carry `max_nwp_init_time_used` (= max est_init_time over rows) and `max_scada_time_used`.
+Every ForecastResult must carry `max_nwp_init_time_used` (= max estimated offset time over rows),
+`max_estimated_nwp_init_time_used`, `max_scada_time_used`, policy version, configured latency, and
+`source_release_time_verified:false`. The provider release time is not proven.
 
 ### 4. Features (≤ 30 min)
 For target hour `T` and lead-day `K`, per model `m`: `ws10, ws100, wd10, wd100, t2m, rh, sp` from `*_previous_dayK`. Derived:

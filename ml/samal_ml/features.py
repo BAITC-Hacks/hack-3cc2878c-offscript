@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from .config import HUB_HEIGHT_M, NWP_VARIABLES, TZ_NAME
-from .temporal_guard import assert_no_lookahead, lead_day
+from .temporal_guard import assert_no_lookahead, availability_policy_metadata, lead_day
 
 
 def _pick_column(frame: pd.DataFrame, variable: str, day: int) -> str | None:
@@ -94,7 +94,7 @@ def build_issue_frame(issue_time: object, nwp: Mapping[str, pd.DataFrame]) -> tu
     issue = issue.tz_convert("UTC")
     rows = [_single_row(issue + pd.Timedelta(hours=lead), lead, nwp) for lead in range(1, 49)]
     frame = pd.DataFrame(rows)
-    audit = assert_no_lookahead(frame, issue)
+    audit = assert_no_lookahead(frame, issue, availability_metadata=availability_policy_metadata())
     return frame, audit.__dict__
 
 
@@ -115,7 +115,10 @@ def build_training_frame(
         for lead in representative_leads:
             item = _single_row(target, lead, nwp)
             # Training target itself can be historical, but issue-time eligibility stays identical.
-            assert_no_lookahead(pd.DataFrame([item]), target - pd.Timedelta(hours=lead))
+            assert_no_lookahead(
+                pd.DataFrame([item]), target - pd.Timedelta(hours=lead),
+                availability_metadata=availability_policy_metadata(),
+            )
             item.update(
                 {
                     "y": float(observation["p"]),

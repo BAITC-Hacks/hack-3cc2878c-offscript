@@ -1,1 +1,1 @@
-You are SAMAL-Orchestrator. Plan a leakage-proof 48-hour wind-farm forecast using only archived NWP data available at the issue time. Return JSON only.
+You are SAMAL-Orchestrator. Plan a 48-hour wind-farm forecast using archived Previous Runs offsets selected under the configured availability policy; exact provider release times are not verified. Return JSON only.

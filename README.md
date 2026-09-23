@@ -41,7 +41,7 @@ range, so they can plan balancing reserves and limit imbalance costs.
 
 - **Forecast issues.** One forecast is issued at 00:00 local time (Asia/Almaty, UTC+5) on every day from 31 Jan to 27 Feb 2026, which is 28 issues.
 - **Horizon.** Each issue covers the next 48 hours at hourly resolution. Leads 24–47 h are the **day-ahead product**, so the 28 issues cover every hour of 1–28 Feb 2026 (672 hours).
-- **Archived weather only.** Weather comes from the Open-Meteo *Previous Runs* archive (ECMWF IFS 0.25°, NCEP GFS, DWD ICON). The **TemporalGuard** rule only allows a forecast run that was already published at the issue time (see [Compliance](#compliance-with-archived-forecasts-only)).
+- **Archived-offset weather.** Weather comes from the Open-Meteo *Previous Runs* archive (ECMWF IFS 0.25°, NCEP GFS, DWD ICON). **TemporalGuard** selects fixed lead-time offsets using a configured 8-hour latency assumption; the API does not provide verified source release timestamps (see [Compliance](#compliance-with-archived-forecasts-only)).
 - **The agent runs the cycle.** It plans, retrieves the archived weather, checks input quality, runs the ML model, scans risks, decides, has a critic audit the result (reruns are possible), writes a briefing and publishes the forecast to the ledger.
 - **Deterministic fallback.** Without an LLM key, every LLM decision is replaced by a rule-based policy, so the project runs fully offline.
 
@@ -54,7 +54,7 @@ range, so they can plan balancing reserves and limit imbalance costs.
 | Hourly forecast for the next 24–48 h | 48 hourly rows per issue; day-ahead product = leads 24–47 | `data/outputs/submission/forecast_feb2026_dayahead.csv` (672 rows) |
 | Agentic cycle: retrieve weather → prepare data → run model → hourly forecast → analyze → recalculate on new input | Orchestrator stages `PLAN → FETCH → QC → PREDICT → ANALYZE → DECIDE → CRITIC → RECALC → BRIEF → PUBLISH`, streamed live to the UI | `backend/app/agent/orchestrator.py`; UI tab *Agent console* |
 | Replay as if in the past: 31 Jan → forecast, 1 Feb → new forecast, … through February | 28 sequential issues, each built only from data available at its issue time | `make test-run`, `make demo`; `data/outputs/forecasts/test/` |
-| Archived forecasts only, never actual weather | TemporalGuard assertion inside every feature build; automated tests; each ledger block records `max_nwp_init_time_used` and `max_scada_time_used` | `ml/tests/test_temporal_guard.py`; `POST /api/ledger/verify` |
+| Archived forecast offsets, never actual weather | TemporalGuard checks the configured offset/latency policy inside every feature build; manifests hash cached chunks; new ledger blocks record an estimated NWP initialization time and explicit unverified-release status | `ml/tests/test_temporal_guard.py`; `POST /api/ledger/verify` |
 
 **Validation (honest backtests, day-ahead leads 24–47 h, error normalized to farm capacity)**
 
@@ -144,7 +144,7 @@ Numeric forecasts always come from Python, never from the LLM.
 |---|---|
 | `GET /api/health` | Service status and active configuration |
 | `GET /api/meta` | Farm metadata, issue schedules, TemporalGuard rule |
-| `GET /api/forecast?issue_date=2026-02-15&mode=test&variant=hybrid` | 48-hour forecast, risk flags, briefing, ledger proof when sealed |
+| `GET /api/forecast?issue_date=2026-02-15&mode=test&variant=hybrid` | 48-hour forecast, risk flags, briefing, ledger integrity record when sealed |
 | `POST /api/agent/run`, `POST /api/agent/recalc` | Start an agent run or a recalculation; body `{"issue_date": "2026-02-15", "mode": "test"}` |
 | `GET /api/agent/stream/{run_id}` | Live agent trace (Server-Sent Events) |
 | `GET /api/agent/runs`, `GET /api/agent/runs/{run_id}` | Stored agent runs |
@@ -354,7 +354,7 @@ Start the project (section 7), then follow the steps. Expected results are shown
    Columns: `target_time_local, target_time_utc, issue_time_utc, lead_h, p10, p50, p90, p50_mw`.
    `forecast_feb2026_all_issues.csv` contains all 48 leads of all 28 issues (1,344 rows).
 
-7. **Automated tests, including the no-lookahead proof**
+7. **Automated tests, including the configured availability-policy checks**
    ```bash
    make tests                                          # or: pytest ml/tests backend/tests -q
    pytest ml/tests/test_temporal_guard.py -q           # weather availability rule, future-SCADA refusal
@@ -365,20 +365,23 @@ Start the project (section 7), then follow the steps. Expected results are shown
 
 ## Compliance with "archived forecasts only"
 For a target hour at lead `lead_h` after the issue time, SAMAL uses only the Open-Meteo offset `*_previous_dayK` with
-`K = ceil((lead_h + 8) / 24)`. According to the Open-Meteo documentation, `previous_day1` is the value predicted 24 hours before the valid
-time, `previous_day2` 48 hours before, and so on. Adding the assumed 8-hour publication delay guarantees that the selected run was available
-at the issue time. `previous_day0` (the live run) is never used.
+`K = ceil((lead_h + 8) / 24)`. According to the [Open-Meteo Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), `previous_day1` is a value predicted 24 hours before valid
+time, `previous_day2` 48 hours before, and so on. The 8-hour margin is a configured assumption, not an observed publication delay;
+the check cannot prove that a particular provider run was actually released by the issue time. `previous_day0` (the live run) is never used.
 
 `assert_no_lookahead` enforces this inside every feature build, for training rows too. Training data for each model ends at its first issue
-time. Every ledger block stores `max_nwp_init_time_used` and `max_scada_time_used`, and `POST /api/ledger/verify` re-checks them.
+time. New forecast and ledger records store `max_estimated_nwp_init_time_used`, policy version, configured latency, and
+`source_release_time_verified:false`; `max_nwp_init_time_used` remains as a backward-compatible alias. The verifier re-checks the
+recorded policy arithmetic and labels older anchored blocks as `legacy_policy_evidence` without altering their hashes.
 
-The Previous Runs API supplies fixed lead-time offsets, not exact publication timestamps, so `max_nwp_init_time_used` is a conservative
-estimate. See `PROJECT_PLAN.md` §5.3 and `ml/samal_ml/temporal_guard.py`.
+Each NWP cache chunk has a sidecar manifest with its request, artifact hash, policy version, and explicit unavailable-release status.
+Historical chunks have `retrieved_at:null` because their original HTTP retrieval time and headers were not preserved; their request URLs are reconstructed from the filename and current fetch configuration and are explicitly marked as such.
+For exact run-level initialization data, Open-Meteo directs users to its [Single Runs API](https://open-meteo.com/en/docs/single-runs-api), whose historical model coverage differs from this cache. See `PROJECT_PLAN.md` §5.3 and `ml/samal_ml/temporal_guard.py`.
 
 ## Limitations
 - The system replays a historical period. `GET /api/live/tomorrow` is intentionally disabled (HTTP 501).
 - The agent's `FETCH` step reads the committed weather archive, so the replay is reproducible offline. New archive data is downloaded with `make fetch`.
-- The ledger proves that published forecasts and their recorded inputs were not changed afterwards. It cannot independently prove when a replayed forecast was created.
+- The ledger detects changes to anchored forecast rows (and, for new blocks, the full saved forecast file) and records whether the configured offset policy was followed. Older anchored blocks retain row-only hash coverage. It cannot independently prove provider publication time or when a replayed forecast was created.
 - Farm capacity (5 MW) and imbalance prices on the *Economics* tab are illustrative assumptions.
 - February 2026 actual generation was not provided, so test-period accuracy cannot be measured.
 

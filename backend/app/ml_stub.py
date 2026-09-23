@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from samal_ml.temporal_guard import availability_policy_metadata
+
 from .settings import settings
 
 
@@ -49,6 +51,8 @@ def _shift_forecast(forecast: dict[str, Any], issue_date: str, mode: str) -> dic
     result["issue_time"] = _iso(target_issue)
     result["mode"] = mode
     result["max_nwp_init_time_used"] = _iso(target_issue - timedelta(hours=8))
+    result["max_estimated_nwp_init_time_used"] = result["max_nwp_init_time_used"]
+    result.update(availability_policy_metadata(8))
     result["max_scada_time_used"] = _iso(target_issue - timedelta(hours=1))
     for row in result["rows"]:
         utc = datetime.fromisoformat(row["target_time"].replace("Z", "+00:00")) + delta
@@ -71,6 +75,10 @@ def fetch_nwp(issue_date: str, models: list[str] | None = None) -> dict[str, Any
         "issue_time": forecast["issue_time"], "models_ok": used, "models_missing": [],
         "coverage": {model: 1.0 for model in used},
         "max_nwp_init_time_used": forecast["max_nwp_init_time_used"], "latency_h": 8,
+        **{key: forecast[key] for key in (
+            "availability_basis", "availability_policy_version", "source_release_time_verified",
+            "source_release_time_evidence", "max_estimated_nwp_init_time_used", "configured_latency_h",
+        )},
         "inputs_sha256": hashlib.sha256(raw).hexdigest(), "n_rows": 48,
     }
 

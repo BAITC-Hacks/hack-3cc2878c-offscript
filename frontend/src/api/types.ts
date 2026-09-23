@@ -53,6 +53,13 @@ export interface ForecastResult {
   model_version: string
   nwp_models_used: string[]
   max_nwp_init_time_used: string
+  max_estimated_nwp_init_time_used?: string
+  availability_basis?: string
+  availability_policy_version?: string
+  source_release_time_verified?: false
+  source_release_time_evidence?: string
+  configured_latency_h?: number
+  availability_evidence_status?: string
   max_scada_time_used: string | null
   latency_h: number
   capacity_mw: number
@@ -111,11 +118,15 @@ export interface LedgerBlock {
   hash: string
   payload_file?: string
   max_nwp_init_time_used?: string
+  max_estimated_nwp_init_time_used?: string
+  availability_policy_version?: string
+  source_release_time_verified?: boolean
+  availability_evidence_status?: string
   latency_h?: number
 }
 
 export interface LedgerData { length: number; head_hash: string; blocks: LedgerBlock[] }
-export interface LedgerVerification { valid: boolean; checked?: number; head_hash?: string; first_bad_block?: number; errors: { block_index: number; reason: string }[] }
+export interface LedgerVerification { valid: boolean; checked?: number; head_hash?: string; first_bad_block?: number; legacy_policy_evidence_blocks?: number[]; errors: { block_index: number; reason: string }[] }
 export interface Economics {
   mode: Mode
   capacity_mw: number

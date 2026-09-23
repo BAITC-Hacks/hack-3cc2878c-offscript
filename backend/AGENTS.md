@@ -54,7 +54,7 @@ Facts passed to the LLM = compact JSON: summary, flags, per-model mean v_hub, sp
 ## Tool registry (tools.py): provider-neutral schema
 ```python
 TOOLS = {
- "fetch_nwp":   {"description":"Fetch archived NWP forecasts available at issue time (TemporalGuard enforced).",
+ "fetch_nwp":   {"description":"Select archived fixed-offset NWP under the configured TemporalGuard availability policy; source release time unverified.",
                  "parameters":{"type":"object","properties":{"issue_date":{"type":"string"},"models":{"type":"array","items":{"type":"string"}}},"required":["issue_date"]},
                  "fn": ml.fetch_nwp},
  "check_inputs":{"description":"Quality-check NWP inputs: coverage, missing models, spread.", ... "fn": ml.check_inputs},
@@ -115,7 +115,7 @@ class Ledger:
             if b["prev_hash"] != prev: errors.append((b["index"], "broken link"))
             if sha({k: v for k, v in b.items() if k != "hash"}) != b["hash"]: errors.append((b["index"], "hash mismatch"))
             if check_files and b.get("payload_file"): recompute sha(rows of file) == b["payload_sha256"] else "payload_sha256 mismatch"
-            temporal: parse times; if max_nwp_init_time_used + latency_h > issue_time → "lookahead violation"
+            temporal: parse times; if estimated_nwp_init + configured_latency_h > issue_time → "configured availability policy violation"
                       if max_scada_time_used > issue_time → "scada lookahead"
             prev = b["hash"]
         return {"valid": not errors, "checked": len(...), "head_hash": prev, "errors": [...]}
@@ -123,6 +123,7 @@ class Ledger:
                               verify against the in-memory payload → returns first_bad_block = i  (never write to disk)
 ```
 Also append a `MODEL_TRAINED` block when the backend first sees a new `model_version` (hash of the model bundle file).
+This design sketch does not establish provider release-time proof; existing anchored blocks are legacy policy evidence.
 
 ## SSE (runs.py + routers/agent.py)
 ```python

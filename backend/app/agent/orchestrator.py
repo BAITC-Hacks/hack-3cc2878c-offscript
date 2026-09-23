@@ -70,12 +70,12 @@ class Orchestrator:
             if not plan.models or any(model not in default_plan.models for model in plan.models):
                 await run.emit("PLAN", "warning", "Planner chose unavailable weather models; safe default plan restored", "orchestrator")
                 plan, plan_meta = default_plan, None
-            await run.emit("PLAN", "stage_start", f"Planning leakage-proof forecast for {run.issue_date}", "orchestrator")
+            await run.emit("PLAN", "stage_start", f"Planning offset-policy forecast for {run.issue_date}", "orchestrator")
             await run.emit("PLAN", "llm_decision", f"Plan selected {plan.variant} with {len(plan.models)} weather models", "orchestrator",
                            detail=plan.model_dump(), llm=plan_meta)
             await self._pace()
 
-            await run.emit("FETCH", "tool_call", "Fetching archived NWP inputs through TemporalGuard", "tool", detail={"models": plan.models})
+            await run.emit("FETCH", "tool_call", "Selecting cached Previous Runs inputs under the configured availability policy", "tool", detail={"models": plan.models})
             inputs = ml.fetch_nwp(run.issue_date, plan.models)
             await run.emit("FETCH", "tool_result", f"Fetched {len(inputs['models_ok'])} models; TemporalGuard metadata recorded", "tool", detail=inputs)
             await self._pace()
@@ -186,8 +186,15 @@ class Orchestrator:
             block = self.ledger.append(block_type, forecast["rows"], issue_date=run.issue_date, issue_time=forecast["issue_time"],
                                        variant=forecast["variant"],
                                        model_version=forecast["model_version"], payload_file=relative_payload,
+                                       payload_file_sha256=sha(payload_path.read_bytes()),
                                        inputs_sha256=inputs["inputs_sha256"], max_nwp_init_time_used=forecast["max_nwp_init_time_used"],
                                        max_scada_time_used=forecast.get("max_scada_time_used"), latency_h=forecast["latency_h"],
+                                       availability_basis=forecast["availability_basis"],
+                                       availability_policy_version=forecast["availability_policy_version"],
+                                       source_release_time_verified=forecast["source_release_time_verified"],
+                                       source_release_time_evidence=forecast["source_release_time_evidence"],
+                                       max_estimated_nwp_init_time_used=forecast["max_estimated_nwp_init_time_used"],
+                                       configured_latency_h=forecast["configured_latency_h"],
                                        note=(f"{reason or 'forecast'}: {decider.action} after {loops} critic loops"
                                              + (f"; input_changed={input_changed}" if recalc else "")))
             await run.emit("PUBLISH", "ledger", f"Published {block_type.lower()} as ledger block #{block['index']}", "ledger", detail={"block_index": block["index"], "hash": block["hash"]})

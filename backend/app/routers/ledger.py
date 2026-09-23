@@ -11,7 +11,9 @@ class TamperRequest(BaseModel):
 @router.get("/api/ledger")
 def get_ledger(request: Request) -> dict:
     ledger = request.app.state.ledger
-    return {"length": len(ledger.blocks), "head_hash": ledger.blocks[-1]["hash"], "blocks": ledger.blocks}
+    blocks = [{**block, "availability_evidence_status": ledger.policy_evidence_status(block)}
+              for block in ledger.blocks]
+    return {"length": len(blocks), "head_hash": ledger.blocks[-1]["hash"], "blocks": blocks}
 
 
 @router.post("/api/ledger/verify")

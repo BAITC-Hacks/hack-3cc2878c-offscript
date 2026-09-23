@@ -38,8 +38,7 @@ public/mocks/          copy of /shared/mocks (script: "predev": "cp -r ../shared
    bar chart NMAE by model (hybrid highlighted vs persistence, climatology, raw_pc, mos_pc); line MAE by lead hour; calendar heatmap
    of daily MAE; reliability plot; series chart (actual vs p50 with band) for the whole month.
 4. **Ledger**: BlockTable (index, type, issue date, short hash, prev hash, note), "Verify chain" (green banner with head hash) and
-   "Tamper demo" (pick block → red banner "Chain broken at block #N: payload_sha256 mismatch"). Explain in one line why: *proof no forecast
-   used future data or was edited later*.
+   "Tamper demo" (pick block → red banner "Chain broken at block #N: payload_sha256 mismatch"). Explain in one line why: *hash integrity detects edits to anchored payloads; the offset policy is checked, but provider release time is unverified*.
 5. **Economics & Scale**: sliders capacity MW (default 5, labelled assumption) & imbalance price ₸/MWh → GET /api/economics; big number
    "Estimated savings vs naive forecast: X ₸/month"; small map/list of KZ wind regions (Shelek, Ereymentau, Zhanatas, Shokpar…) "same agent, new coordinates".
 

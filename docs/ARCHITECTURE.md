@@ -22,7 +22,7 @@ sequenceDiagram
     O->>C: review again
   end
   O->>L: briefing en/ru/kk (numeric grounding check)
-  O->>LG: append FORECAST block (payload hash, input times)
+  O->>LG: append FORECAST block (payload hash, estimated NWP time, policy version)
   O-->>UI: SSE events all along, final "done"
 ```
 
@@ -34,13 +34,22 @@ In a live deployment the trigger is a scheduler polling Open-Meteo for a new mod
 ## Decisions (mini-ADRs)
 | Decision | Why |
 |---|---|
-| Open-Meteo Previous Runs API | Free, no key, multi-model, gives *as-issued* forecasts: exactly what the task demands |
-| Conservative latency 8 h in the lead-day rule | Guarantees availability; small skill loss is worth zero leakage risk |
+| Open-Meteo Previous Runs API | Free, no key, multi-model, fixed lead-time-offset archive; it does not expose exact source release timestamps |
+| Configured latency 8 h in the lead-day rule | Conservative policy margin, not measured provider delay or a guarantee of release-time availability |
 | scikit-learn HistGradientBoosting (not LightGBM/XGBoost) | Native quantile loss + NaN handling, no libomp install issues on Macs, fast enough |
 | Isotonic power curve + MOS + GBM hybrid | Physics prior makes the model robust with only ~2 years of NWP; GBM learns local corridor effects |
-| Conformal calibration | Distribution-free coverage guarantee; easy to explain |
+| Conformal calibration | Empirical interval adjustment; report held-out coverage rather than a universal guarantee |
 | LLM for decisions/explanations only | Numbers stay deterministic and testable; LLM failure never breaks forecasting |
-| Hash-chain ledger | Tamper-evidence + provable no-lookahead; cheap; no blockchain infrastructure needed |
+| Hash-chain ledger | Tamper-evidence for anchored payloads and recorded offset-policy arithmetic; no claim of provider release-time proof |
 | Deterministic state machine (no LangGraph) | Fewer dependencies, full control over events and fallbacks in a 5-hour build |
 | SSE (not WebSockets) | One-way stream is all we need; trivial in FastAPI & browser |
 | Caches committed to git | Judges reproduce offline and without keys (rule 5.6.6) |
+
+Every NWP CSV cache chunk has a sidecar manifest with its request URL/parameters, date range, artifact SHA-256,
+policy version, and explicit `source_release_time_verified:false`. New fetches record retrieval time and response
+headers; older committed chunks have `retrieved_at:null`, and their reconstructed request URL is marked as such rather
+than presented as a captured original HTTP request.
+Old ledger blocks remain anchored unchanged and are reported as `legacy_policy_evidence`; new blocks record
+`previous-runs-offset-v1` and the estimated initialization time separately from the backward-compatible field.
+New blocks also hash the full immutable forecast file in addition to the backward-compatible row hash; legacy blocks
+retain row-only hash coverage.

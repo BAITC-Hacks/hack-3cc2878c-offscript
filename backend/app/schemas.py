@@ -46,6 +46,12 @@ class ForecastResult(SamalModel):
     model_version: str
     nwp_models_used: list[str]
     max_nwp_init_time_used: str
+    max_estimated_nwp_init_time_used: str
+    availability_basis: str
+    availability_policy_version: str
+    source_release_time_verified: Literal[False]
+    source_release_time_evidence: str
+    configured_latency_h: int
     max_scada_time_used: str | None = None
     latency_h: int
     capacity_mw: float
@@ -112,10 +118,18 @@ class LedgerBlock(SamalModel):
     issue_date: str | None = None
     issue_time: str | None = None
     payload_sha256: str | None = None
+    payload_file_sha256: str | None = None
     payload_file: str | None = None
     model_version: str | None = None
     inputs_sha256: str | None = None
     max_nwp_init_time_used: str | None = None
+    max_estimated_nwp_init_time_used: str | None = None
+    availability_basis: str | None = None
+    availability_policy_version: str | None = None
+    source_release_time_verified: bool | None = None
+    source_release_time_evidence: str | None = None
+    configured_latency_h: int | None = None
+    availability_evidence_status: str | None = None
     max_scada_time_used: str | None = None
     latency_h: int | None = None
     note: str | None = None

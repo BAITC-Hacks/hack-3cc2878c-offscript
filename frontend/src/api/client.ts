@@ -45,6 +45,12 @@ function adaptForecast(source: ForecastResult, issueDate: string, mode: Mode, va
     ...source, issue_date: issueDate, issue_time: shiftUtc(source.issue_time, days), mode, variant,
     briefing: demoBriefing,
     max_nwp_init_time_used: shiftUtc(source.max_nwp_init_time_used, days),
+    max_estimated_nwp_init_time_used: shiftUtc(source.max_estimated_nwp_init_time_used || source.max_nwp_init_time_used, days),
+    availability_basis: 'fixed_previous_runs_offset_plus_configured_latency',
+    availability_policy_version: 'previous-runs-offset-v1',
+    source_release_time_verified: false,
+    source_release_time_evidence: 'not_provided_by_open_meteo_previous_runs_api',
+    configured_latency_h: source.configured_latency_h ?? source.latency_h,
     max_scada_time_used: source.max_scada_time_used ? shiftUtc(source.max_scada_time_used, days) : null,
     rows: source.rows.map(row => ({ ...row, target_time: shiftUtc(row.target_time, days), target_time_local: shiftLocal(row.target_time_local, days), actual: mode === 'test' ? null : row.actual })),
     flags: source.flags.map(flag => ({ ...flag, start: shiftUtc(flag.start, days), end: shiftUtc(flag.end, days) })),
@@ -65,8 +71,18 @@ export async function getSeries(mode: Mode): Promise<{ mode: Mode; rows: { targe
   if (mockMode) return { ...(await fixture<{ mode: Mode; rows: { target_time: string; p10: number; p50: number; p90: number; actual: number | null }[] }>('series_val_feb2025')), mode }
   return api(`/api/series?${new URLSearchParams({ mode })}`)
 }
-export async function getLedger(): Promise<LedgerData> { return mockMode ? fixture('ledger') : api('/api/ledger') }
-export async function verifyLedger(): Promise<LedgerVerification> { return mockMode ? fixture('ledger_verify') : api('/api/ledger/verify', { method: 'POST' }) }
+export async function getLedger(): Promise<LedgerData> {
+  if (!mockMode) return api('/api/ledger')
+  const ledger = await fixture<LedgerData>('ledger')
+  return { ...ledger, blocks: ledger.blocks.map(block => ({ ...block,
+    availability_evidence_status: block.type === 'FORECAST' || block.type === 'REVISION' ? 'legacy_policy_evidence' : 'not_applicable',
+  })) }
+}
+export async function verifyLedger(): Promise<LedgerVerification> {
+  if (!mockMode) return api('/api/ledger/verify', { method: 'POST' })
+  const [verification, ledger] = await Promise.all([fixture<LedgerVerification>('ledger_verify'), getLedger()])
+  return { ...verification, legacy_policy_evidence_blocks: ledger.blocks.filter(block => block.availability_evidence_status === 'legacy_policy_evidence').map(block => block.index) }
+}
 export async function tamperLedger(blockIndex: number): Promise<LedgerVerification> {
   if (mockMode) return { ...(await fixture<LedgerVerification>('ledger_tamper')), first_bad_block: blockIndex, errors: [{ block_index: blockIndex, reason: 'payload_sha256 mismatch' }] }
   return api('/api/ledger/tamper-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ block_index: blockIndex }) })

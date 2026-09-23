@@ -14,11 +14,11 @@
 SAMAL is an **autonomous AI agent that forecasts hourly wind-farm output 24–48 h ahead** for the two-turbine
 wind farm in the **Shelek wind corridor (Almaty region, 43.645°N 78.536°E)**. It:
 
-1. **Pulls archived forecasts from three weather models at once** (ECMWF, GFS and ICON, via Open-Meteo's *Previous Runs API*). "Archived" means the forecast exactly as it was published at the time. It never uses weather that became known later.
-2. **Enforces a strict "time machine" (TemporalGuard):** code cannot touch any data published after the issue time.
+1. **Uses fixed lead-time-offset forecasts from three weather models** (ECMWF, GFS and ICON, via Open-Meteo's *Previous Runs API*). The API does not expose exact provider publication timestamps; archived offsets are selected under a configured latency assumption.
+2. **Enforces a configured availability policy (TemporalGuard):** code selects only `previous_day1..7` offsets satisfying the fixed-offset plus 8-hour margin rule. This is not independent proof of source release time.
 3. **Forecasts a range, not one number.** It gives P10/P50/P90: a low case, the median and a high case, using a physics-informed model. The chance that the real value falls inside P10–P90 is calibrated to ~80% (conformal calibration).
 4. **Runs as a self-auditing agent loop.** One LLM agent plans and calls tools. A second LLM agent (the "Critic") audits the result. The system recalculates when newer weather data arrives. Finally it writes a grid-dispatcher briefing in RU/KZ/EN, where every number is checked against the computed results, so no invented numbers.
-5. **Seals every forecast in a hash-chained ledger ("Proof-of-No-Lookahead").** Each forecast is linked to the one before it, blockchain-style. This lets anyone *verify* that no forecast was changed after the fact and that none used future data. A "tamper" button in the UI shows the chain breaking live.
+5. **Seals every forecast in a hash-chained ledger.** Each forecast is linked to the one before it, blockchain-style. This detects later changes to anchored payloads and records the configured offset-policy check; it does not certify when Open-Meteo released a source run. A "tamper" button shows the chain breaking live.
 
 Business value: in Kazakhstan's balancing electricity market, the grid operator KEGOC must cover the gap between
 forecast and actual output ("imbalance"). Better day-ahead forecasts mean smaller imbalances and lower costs, and more renewable
@@ -37,7 +37,7 @@ Original text: `docs/TASK_ORIGINAL.md`. Requirement → feature mapping:
 | R3 | Forecast next 24–48 h, hourly | Each issue produces 48 hourly values (lead 1–48 h); the official day-ahead product is lead 24–47 h | A |
 | R4 | Agentic cycle: fetch weather → prepare → run model → hourly forecast → analyze → **recalculate on input update** | `backend/app/agent/` state-machine agent with LLM planner + tools + Critic + recalc policy, streamed live to the UI | B |
 | R5 | Replay as if in the past: 31 Jan → forecast; 1 Feb → new forecast; … through 28 Feb | `make test-run` loops issue dates 2026-01-31 … 2026-02-27 (28 issues, covering 1–28 Feb day-ahead) and writes `data/outputs/submission/*.csv` | A (+B for agent mode) |
-| R6 | Use **archived** forecasts, not actual weather | TemporalGuard + ledger records `max_nwp_init_time_used ≤ issue_time` for every block; automated test `test_no_lookahead` | A + B |
+| R6 | Use **archived** forecasts, not actual weather | TemporalGuard selects `previous_day1..7` under an explicit offset-plus-latency assumption; new ledger records carry the estimated NWP time and unverified-release status; boundary tests check the policy, not provider publication time | A + B |
 | Eval | README & reproducibility (25 pts!) | One-command run (`docker compose up`) + **offline replay** from the cached weather data included in the repo; the LLM part is optional (`LLM_PROVIDER=none` works) | C + all |
 
 Scoring (technical round, 100): compliance/functionality 25 · technical implementation incl. agentic AI 25 · README & reproducibility 25 ·
@@ -50,12 +50,12 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 
 | Typical team | SAMAL |
 |---|---|
-| One weather source, often *actual* (reanalysis) weather, so leakage | **3+ numerical weather prediction (NWP) models**, *archived* forecasts, with a formal lead-time rule and a unit test proving there is no lookahead |
-| Single number forecast | **Probabilistic P10/P50/P90** with conformal calibration (guaranteed ~80% coverage on validation) |
+| One weather source, often *actual* (reanalysis) weather, so leakage | **3+ numerical weather prediction (NWP) models**, archived fixed-offset forecasts, with a unit-tested configured availability rule and explicit release-time uncertainty |
+| Single number forecast | **Probabilistic P10/P50/P90** with conformal calibration; report measured validation coverage rather than guaranteeing it |
 | Plain ML on raw features | **Physics-informed**: corrects forecast wind to hub height from forecast-vs-measured history (MOS) → farm's empirical power curve (isotonic, monotone) → air-density correction → gradient boosting learns what physics misses |
 | "Agent" = a chat box | **Real agent loop** with tool calling, a Critic agent (self-audit), recalculation policy and a live streamed trace |
 | LLM free text with hallucinated numbers | **Numeric-grounding guardrail**: every number in the briefing must match the facts table, otherwise auto-regenerate |
-| Trust us, we didn't cheat | **Proof-of-No-Lookahead ledger** (SHA-256 hash chain), verifiable in 1 click, with a live tamper demo |
+| Trust us, we didn't cheat | **Tamper-evident ledger** (SHA-256 hash chain) for payload integrity and recorded offset-policy compliance, with a live tamper demo |
 | Needs their API key to run | Runs fully **offline & keyless** (cached weather data + rule-based agent fallback + cached LLM responses) |
 
 ---
@@ -128,8 +128,10 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 
 ### 5.3 TemporalGuard: the no-lookahead rule (core of compliance)
 Issue time `t0` (UTC). Target hour `T = t0 + L`, lead `L ∈ {1..48}` h.
-Open-Meteo `…_previous_dayK` at valid time `T` comes from a model run initialized ≈ `T − 24·K` h (±6 h run cycle),
-published up to ~8 h later. It was therefore available at `t0` iff `T − 24K + LATENCY ≤ t0`, so:
+Open-Meteo `…_previous_dayK` at valid time `T` is a fixed lead-time-offset value predicted `24·K` h beforehand.
+We **estimate** an initialization time of `T − 24·K` h and configure an 8-hour latency margin. The Previous Runs response
+does not supply exact run initialization or publication timestamps; satisfying `T − 24K + LATENCY ≤ t0` establishes only
+compliance with this chosen policy, not actual source release by `t0`:
 
 ```
 K(L) = ceil((L + LATENCY_H) / 24),   LATENCY_H = 8 (config),   K ≤ 7
@@ -138,8 +140,9 @@ L = 1..16  → K=1   |   L = 17..40 → K=2   |   L = 41..48 → K=3
 - Training rows are built **the same way**: for each historical hour T we create up to 3 samples (K=1,2,3) with features
   from `previous_dayK` and `lead_day=K` as a feature. Same distribution in training and test.
 - SCADA features (e.g., last observed power, used by persistence baseline) must satisfy `ts ≤ t0`.
-- `TemporalGuard.assert_ok(frame, t0)` raises if any used row violates the rule; every call logs
-  `max_nwp_init_time_used` and `max_scada_time_used` → goes into the ledger block.
+- `TemporalGuard.assert_ok(frame, t0)` raises if any used row violates the rule; every call records
+  `max_estimated_nwp_init_time_used`, the backward-compatible `max_nwp_init_time_used`, configured latency, policy version,
+  `source_release_time_verified:false`, and `max_scada_time_used` → goes into new ledger blocks.
 - Unit test `test_no_lookahead.py`: random t0/L combos, assert the invariant holds.
 
 **Issue schedule (default):** `t0 = D 00:00 Asia/Almaty (UTC+5) = D−1 19:00 UTC`. Horizon = t0+1h … t0+48h.
@@ -217,13 +220,16 @@ OpenAI-compatible providers), `LLM_CACHE=1`. Temperature 0, JSON-only outputs va
 one repair retry, then rule-based fallback. Cache key = sha256(provider|model|system|messages|tools) → `data/llm_cache/`.
 Commit the cache for the demo runs → judges see identical agent traces **without any key**.
 
-### 6.4 Proof-of-No-Lookahead ledger ("blockchain-lite", justified, not a gimmick)
+### 6.4 Tamper-evident ledger and configured availability record ("blockchain-lite")
 Block = `{index, type: MODEL_TRAINED|FORECAST|REVISION, issue_time, created_at, model_version,
-payload_sha256, inputs_sha256, max_nwp_init_time_used, max_scada_time_used, latency_h, prev_hash, hash}`;
+payload_sha256, inputs_sha256, max_nwp_init_time_used, max_estimated_nwp_init_time_used,
+availability_policy_version, source_release_time_verified:false, max_scada_time_used, latency_h, prev_hash, hash}`;
 `hash = sha256(canonical_json(block_without_hash))`. **Verify** = recompute all hashes + links + payload files +
 temporal invariants (`max_nwp_init_time_used + latency ≤ issue_time`, `max_scada_time_used ≤ issue_time`).
-**Tamper demo** = modify one p50 in a *copy* → verification fails at block N (red in UI). Why it matters: forecast
-submissions to a grid operator must be provable and non-repudiable; it also proves to the jury that we did not peek at the answers.
+**Tamper demo** = modify one p50 in a *copy* → verification fails at block N (red in UI). This verifies payload integrity
+and the recorded policy arithmetic, not actual provider publication time. Existing anchored blocks remain unchanged and
+are labeled as legacy policy evidence. Cache sidecars record request details and artifact hashes; original retrieval times
+for legacy chunks are unavailable rather than fabricated.
 Stretch: Ed25519 signature per block; publish the chain's head hash in the final git commit message (git timestamp = external anchor).
 
 ---

@@ -36,7 +36,7 @@ export function BriefingCard({ briefing }: { briefing: ForecastResult['briefing'
 }
 
 export function ProofStrip({ forecast, demo = false }: { forecast: ForecastResult; demo?: boolean }) {
-  return <div className="proof-strip"><ShieldCheck size={18} /><div><strong>{demo ? 'Temporal guard preview · demo data' : 'Proof of no lookahead'}</strong><span>NWP initialized by {localTime(forecast.max_nwp_init_time_used)} · issued {localTime(forecast.issue_time)} · {forecast.latency_h} h publication margin</span></div>{forecast.ledger ? <span className="proof-hash">{demo ? 'Sample block' : 'Block'} #{forecast.ledger.block_index} · {forecast.ledger.hash.slice(0, 8)}…</span> : null}</div>
+  return <div className="proof-strip"><ShieldCheck size={18} /><div><strong>Configured availability check{demo ? ' · demo data' : ''}</strong><span>Estimated NWP initialization time {localTime(forecast.max_estimated_nwp_init_time_used || forecast.max_nwp_init_time_used)} · issued {localTime(forecast.issue_time)} · configured {forecast.configured_latency_h ?? forecast.latency_h} h margin · source release time unverified</span></div>{forecast.ledger ? <span className="proof-hash">{demo ? 'Sample block' : 'Block'} #{forecast.ledger.block_index} · {forecast.ledger.hash.slice(0, 8)}…</span> : null}</div>
 }
 
 export function Disclosure({ label, children }: { label: string; children: React.ReactNode }) {

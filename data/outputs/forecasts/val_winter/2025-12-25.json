@@ -12,6 +12,12 @@
   "max_nwp_init_time_used": "2025-12-24T11:00:00Z",
   "max_scada_time_used": "2025-12-24T19:00:00Z",
   "latency_h": 8,
+  "availability_basis": "fixed_previous_runs_offset_plus_configured_latency",
+  "availability_policy_version": "previous-runs-offset-v1",
+  "source_release_time_verified": false,
+  "source_release_time_evidence": "not_provided_by_open_meteo_previous_runs_api",
+  "max_estimated_nwp_init_time_used": "2025-12-24T11:00:00Z",
+  "configured_latency_h": 8,
   "capacity_mw": 5.0,
   "widen": 0.0,
   "rows": [
