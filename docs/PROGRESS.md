@@ -7,3 +7,4 @@ Format: `HH:MM [A|B|C] what was done`. Commit after each line or batch of lines.
 - 15:32 [A] Cached three archived NWP model histories, trained test and validation models, replayed both validations and all 28 February 2026 issues; submission has 672 unique day-ahead hours.
 - 15:32 [B] Switched to real ML/OpenAI; verified planner, decider, critic, AI briefing, exact-match ledger proof, immutable payloads, and tamper detection.
 - 15:32 [C] Switched Vite to the live API; checked all five dashboard tabs, winter and seasonal metrics, AI briefing, ledger, economics, and a clean browser console.
+- 15:48 [B] Verified automatic daily rollover comparison across 24 overlapping hours with new NWP timestamps; keyless agent published a valid ledger block.

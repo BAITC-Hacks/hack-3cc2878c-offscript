@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import date, timedelta
 import json
 from pathlib import Path
 from typing import Any
@@ -143,6 +144,18 @@ class Orchestrator:
                 diff["mean_band_delta"] = round(forecast["summary"]["mean_band"] - previous[1]["summary"]["mean_band"], 6)
                 await run.emit("RECALC", "tool_result", "Revision compared with the previous published forecast", "tool",
                                detail={"input_changed": input_changed, **diff})
+            elif not recalc:
+                previous_issue = (date.fromisoformat(run.issue_date) - timedelta(days=1)).isoformat()
+                prior_daily = self._latest_published(previous_issue, run.mode)
+                if prior_daily:
+                    diff = ml.forecast_diff(prior_daily[1], forecast)
+                    if diff["overlap_hours"]:
+                        await run.emit(
+                            "RECALC", "tool_result", "Daily issue updated the prior forecast's overlapping hours", "tool",
+                            detail={"previous_issue": previous_issue, "previous_block": prior_daily[0]["index"],
+                                    "old_nwp_init": prior_daily[1]["max_nwp_init_time_used"],
+                                    "new_nwp_init": forecast["max_nwp_init_time_used"], **diff},
+                        )
             await self._pace()
 
             fallback_briefings = template(forecast, flags)
