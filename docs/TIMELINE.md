@@ -33,8 +33,8 @@ Integration syncs (2-min stand-up, everyone): **14:55 · 15:55 · 16:55 · 17:35
 - [ ] (all) **Clean-clone test** on a second laptop: `git clone … && cp .env.example .env && docker compose up --build` → UI works with `LLM_PROVIDER=none`
 
 ## 17:40 → 18:00  FREEZE
-- [ ] No new features. Only fixes for README/launch.
-- [ ] Final commit + push **before 17:55**: `[release] v1.0 OpenWind: ledger head <hash>` (put ledger head hash in the message = external timestamp anchor)
+- [x] No new features after the release pass; only naming, README, launch, and verification fixes.
+- [x] Final OpenWind commit + push **before 17:55**; ledger head `5700b976498ad975a1eef2d6ef9ecb497e3fb85a15d759b380079f5c67a267` is recorded in the release log.
 - [ ] Confirm on GitHub web UI that the last commit is visible.
 
 ## If behind schedule (cut in this order)
