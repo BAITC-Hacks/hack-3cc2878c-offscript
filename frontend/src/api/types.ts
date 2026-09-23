@@ -60,7 +60,7 @@ export interface ForecastResult {
   rows: ForecastRow[]
   summary: { mean_p50: number; energy_p50_mwh: number; max_p90: number; mean_band: number; dayahead_mean_p50: number }
   flags: RiskFlag[]
-  ledger?: { block_index: number; hash: string; verified: boolean }
+  ledger?: { block_index: number; hash: string; verified: boolean } | null
   briefing?: { en: Briefing; ru: Briefing; kk: Briefing } | null
 }
 

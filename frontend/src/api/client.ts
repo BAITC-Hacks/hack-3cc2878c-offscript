@@ -1,7 +1,7 @@
 import type { AgentEvent, AgentRun, Economics, ForecastResult, FarmMeta, Health, LedgerData, LedgerVerification, Metrics, Mode, Variant } from './types'
 
-export const mockMode = import.meta.env.VITE_USE_MOCKS !== '0'
-const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+export const mockMode = import.meta.env.VITE_USE_MOCKS === '1'
+const baseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, init)
@@ -93,7 +93,7 @@ export async function startAgent(issueDate: string, mode: Mode, recalc = false):
     return { run_id: runId }
   }
   return api(recalc ? '/api/agent/recalc' : '/api/agent/run', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(recalc ? { issue_date: issueDate, mode, reason: 'new_nwp' } : { issue_date: issueDate, mode, use_llm: true }) })
+    body: JSON.stringify(recalc ? { issue_date: issueDate, mode, reason: 'manual_risk_review' } : { issue_date: issueDate, mode, use_llm: true }) })
 }
 export async function getRun(runId: string): Promise<AgentRun> {
   if (mockMode) {

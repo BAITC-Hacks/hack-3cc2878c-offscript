@@ -10,6 +10,6 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-      args: { VITE_API_URL: "http://localhost:8000", VITE_USE_MOCKS: "0" }
+      args: { VITE_API_URL: "http://127.0.0.1:8000", VITE_USE_MOCKS: "0" }
     ports: [ "5173:80" ]
     depends_on: [ backend ]

@@ -954,11 +954,7 @@
    "message": "GFS is ~2.4 m/s windier than ECMWF/ICON: band widened"
   }
  ],
- "ledger": {
-  "block_index": 16,
-  "hash": "1ea46d5dab426bc95b04e102793abcf8aa7045febe7d9d41fd6cda958bec3bc6",
-  "verified": true
- },
+ "ledger": null,
  "briefing": {
   "en": {
    "lang": "en",

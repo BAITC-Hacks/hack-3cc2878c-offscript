@@ -5,7 +5,7 @@ COPY frontend/package*.json ./
 RUN npm ci || npm install
 COPY frontend ./
 COPY shared/mocks /app/shared/mocks
-ARG VITE_API_URL=http://localhost:8000
+ARG VITE_API_URL=http://127.0.0.1:8000
 ARG VITE_USE_MOCKS=0
 ENV VITE_API_URL=$VITE_API_URL VITE_USE_MOCKS=$VITE_USE_MOCKS
 RUN npm run build

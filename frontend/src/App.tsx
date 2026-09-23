@@ -25,10 +25,11 @@ export default function App() {
   const [meta, setMeta] = useState<FarmMeta | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
   const [metaError, setMetaError] = useState('')
+  const [bootstrapRevision, setBootstrapRevision] = useState(0)
   const [issueDate, setIssueDate] = useState('2026-02-14')
   const [ledgerRevision, setLedgerRevision] = useState(0)
 
-  useEffect(() => { Promise.all([getMeta(), getHealth()]).then(([farm, status]) => { setMeta(farm); setHealth(status) }).catch(error => setMetaError(error.message)) }, [])
+  useEffect(() => { setMetaError(''); Promise.all([getMeta(), getHealth()]).then(([farm, status]) => { setMeta(farm); setHealth(status) }).catch(error => setMetaError(error.message)) }, [bootstrapRevision])
   const dates = meta?.issue_dates?.[mode] || []
   const dateIndex = Math.max(0, dates.indexOf(issueDate))
   const demo = mockMode || health?.ml_stub === true
@@ -39,9 +40,9 @@ export default function App() {
     setIssueDate(options.includes('2026-02-14') ? '2026-02-14' : options[Math.floor(options.length / 2)] || '')
   }
 
-  return <div className="app-shell"><header className="app-header"><div className="brand"><div className="brand-mark"><Wind size={24} strokeWidth={2.2} /></div><div><strong>SAMAL</strong><span>Wind forecast control room</span></div></div><div className="header-right"><span className="farm-label">Shelek corridor · 2 turbines</span>{demo ? <Status type="warn">Demo data</Status> : <Status type="ok">Live API</Status>}<span className="header-live"><i /> SYSTEM ONLINE</span></div></header>
+  return <div className="app-shell"><header className="app-header"><div className="brand"><div className="brand-mark"><Wind size={24} strokeWidth={2.2} /></div><div><strong>SAMAL</strong><span>Wind forecast control room</span></div></div><div className="header-right"><span className="farm-label">Shelek corridor · 2 turbines</span>{metaError ? <Status type="critical">API offline</Status> : !health ? <Status type="neutral">Connecting</Status> : demo ? <Status type="warn">Demo data</Status> : <Status type="ok">Live API</Status>}{!metaError ? <span className="header-live"><i /> SYSTEM ONLINE</span> : null}</div></header>
     <nav className="top-nav" aria-label="Main navigation">{tabs.map(tab => { const Icon = tab.icon; return <button key={tab.key} className={clsx('nav-tab', page === tab.key && 'nav-active')} aria-current={page === tab.key ? 'page' : undefined} onClick={() => setPage(tab.key)}><Icon size={17} />{tab.label}</button> })}</nav>
-    <main className="main-content">{metaError ? <div className="error-state" role="alert">API metadata unavailable: {metaError}. Start the backend or set VITE_USE_MOCKS=1.</div> : null}
+    <main className="main-content">{metaError ? <div className="error-state" role="alert">API metadata unavailable: {metaError}. Start the backend or set VITE_USE_MOCKS=1. <button className="button button-secondary" onClick={() => setBootstrapRevision(value => value + 1)}>Retry connection</button></div> : null}
       {meta && (page === 'forecast' || page === 'agent') ? <div className="context-bar"><div className="context-left"><label className="select-label">Issue schedule<select value={mode} onChange={event => chooseMode(event.target.value as Mode)}><option value="test">February 2026 · test</option><option value="val_feb2025">February 2025 · validation</option><option value="val_winter">Winter 2025–26 · validation</option></select></label><label className="select-label">Issue date<select value={issueDate} onChange={event => setIssueDate(event.target.value)}>{dates.map(date => <option value={date} key={date}>{date}</option>)}</select></label></div><div className="context-slider"><span>Earlier</span><input aria-label="Issue date slider" type="range" min="0" max={Math.max(dates.length - 1, 0)} value={dateIndex} onChange={event => setIssueDate(dates[Number(event.target.value)] || issueDate)} /><span>Later</span></div><span className="context-count">Issue {dateIndex + 1} of {dates.length}</span></div> : null}
       {demo ? <div className="demo-note">Representative fixture data. Dates and controls are interactive; switch VITE_USE_MOCKS=0 and USE_ML_STUB=0 for model-generated results.</div> : null}
       {page === 'forecast' && meta ? <ForecastPage issueDate={issueDate} mode={mode} /> : null}

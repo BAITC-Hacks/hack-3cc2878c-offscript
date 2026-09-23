@@ -12,16 +12,16 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`. Development mode defaults to **representative demo fixtures** copied from `shared/mocks/`; no backend or API key is needed. Dates, controls, simulated agent streaming, verification, and the tamper demonstration are interactive. The fixture is *not* a real February 2026 forecast or a new validation result. The shared fixture's original briefing disagrees with its hourly rows, so the demo adapter displays a deterministic, numerically consistent EN/RU/KZ briefing instead. Model variants in demo mode share the same hourly series; use the live API to compare real variants.
+Open `http://localhost:5173`. Development mode defaults to the **live backend** at `http://127.0.0.1:8000`. Start the backend with `USE_ML_STUB=0`, the archived weather cache, and trained models. Keep the OpenAI key in the repository-root `.env` only; Vite must never receive it. The browser displays an error if the backend is unavailable rather than silently showing fixtures.
 
-To use the backend, create `frontend/.env.local` (do not commit it):
+To configure a different backend address, create `frontend/.env.local` (do not commit it):
 
 ```dotenv
 VITE_USE_MOCKS=0
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=http://127.0.0.1:8000
 ```
 
-Start the backend separately per `backend/AGENTS.md`. The frontend consumes the routes and payloads in `docs/CONTRACTS.md` without putting an LLM key in browser code. If the backend reports `ml_stub=true`, the UI still labels its data as demo data. The Dockerfile builds with `VITE_USE_MOCKS=0` and expects the repository root as Docker build context.
+For an isolated fixture demo without the backend, set `VITE_USE_MOCKS=1` and restart Vite. Fixtures are representative, not February 2026 forecasts or new validation results; demo model variants share one hourly series. The frontend consumes the routes and payloads in `docs/CONTRACTS.md`. If the backend reports `ml_stub=true`, the UI labels its data as demo data. The Dockerfile builds with `VITE_USE_MOCKS=0` and expects the repository root as Docker build context.
 
 ## Checks
 
