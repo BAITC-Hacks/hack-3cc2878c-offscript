@@ -23,7 +23,7 @@ The first interval is conservative; coverage is measured, not claimed as a guara
 The flow is `archived ECMWF/GFS/ICON forecasts + organizer SCADA → TemporalGuard → MOS/power-curve/quantile ML → agent planner/decider/critic → briefing + immutable forecast payload → SHA-256 ledger → REST/SSE → control-room UI`. Numeric forecasts always come from Python, never the LLM.
 - `ml/`: `samal_ml`: SCADA cleaning, Open-Meteo archived-forecast fetcher with **TemporalGuard**, physics-informed quantile model, backtests
 - `backend/`: FastAPI: agent orchestrator (planner/decider/critic LLMs + tools), SSE stream, ledger, REST API
-- `frontend/`: React dashboard: forecast fan chart, live agent console, backtest skill, ledger verify/tamper, economics
+- `frontend/`: React dashboard: forecast fan chart, live agent console, backtest skill, ledger verify/tamper, and economics
 - `data/`: raw SCADA, cached weather (committed → offline replay), outputs (forecasts, metrics, **submission CSVs**), ledger, LLM cache
 
 ## 3. Technologies
