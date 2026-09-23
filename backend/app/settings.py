@@ -4,6 +4,14 @@ from dataclasses import dataclass
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+# Docker Compose injects .env itself; loading it here also makes direct uvicorn
+# launches use the same local configuration without overriding shell variables.
+load_dotenv(_REPO_ROOT / ".env", override=False)
+
 
 def _bool(name: str, default: bool) -> bool:
     return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
@@ -11,7 +19,7 @@ def _bool(name: str, default: bool) -> bool:
 
 @dataclass(frozen=True)
 class Settings:
-    repo_root: Path = Path(__file__).resolve().parents[2]
+    repo_root: Path = _REPO_ROOT
     use_ml_stub: bool = _bool("USE_ML_STUB", True)
     weather_offline: bool = _bool("WEATHER_OFFLINE", True)
     llm_provider: str = os.getenv("LLM_PROVIDER", "none").lower()

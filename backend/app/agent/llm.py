@@ -45,8 +45,6 @@ class LLM:
     async def json(self, system: str, user: str, schema: type[SchemaT], *, temperature: float = 0) -> tuple[SchemaT, dict[str, Any]]:
         if self.provider == "none":
             raise LLMUnavailable("LLM_PROVIDER=none")
-        if not self.api_key:
-            raise LLMUnavailable("LLM_API_KEY is not configured")
         cache_path = self._cache_path(system, user, schema)
         if cache_path.exists():
             try:
@@ -54,6 +52,8 @@ class LLM:
                 return schema.model_validate(cached["response"]), {"provider": self.provider, "model": self.model, "cached": True, "latency_ms": 0}
             except (KeyError, ValueError):
                 cache_path.unlink(missing_ok=True)
+        if not self.api_key:
+            raise LLMUnavailable("LLM_API_KEY is not configured")
         started = datetime.now(UTC)
         try:
             response = await self._request(system, user, schema, temperature)
