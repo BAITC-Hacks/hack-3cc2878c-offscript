@@ -1,0 +1,1252 @@
+{
+  "issue_date": "2026-01-21",
+  "issue_time": "2026-01-20T19:00:00Z",
+  "mode": "val_winter",
+  "variant": "hybrid",
+  "model_version": "hybrid-qhgb-train2025-10-30-val_winter",
+  "nwp_models_used": [
+    "ecmwf_ifs025",
+    "gfs_seamless",
+    "icon_seamless"
+  ],
+  "max_nwp_init_time_used": "2026-01-20T11:00:00Z",
+  "max_scada_time_used": "2026-01-20T19:00:00Z",
+  "latency_h": 8,
+  "capacity_mw": 5.0,
+  "widen": 0.0,
+  "rows": [
+    {
+      "target_time": "2026-01-20T20:00:00Z",
+      "target_time_local": "2026-01-21T01:00:00+05:00",
+      "lead_h": 1,
+      "lead_day": 1,
+      "p10": 0.435889,
+      "p50": 0.858301,
+      "p90": 1.0,
+      "v_hub_mean": 10.393333,
+      "v_hub_spread": 0.464782,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 10.09,
+        "gfs_seamless": 11.05,
+        "icon_seamless": 10.04
+      },
+      "pc_raw": 0.853557,
+      "temp_c": -10.166667,
+      "actual": 0.278333
+    },
+    {
+      "target_time": "2026-01-20T21:00:00Z",
+      "target_time_local": "2026-01-21T02:00:00+05:00",
+      "lead_h": 2,
+      "lead_day": 1,
+      "p10": 0.656092,
+      "p50": 0.966309,
+      "p90": 1.0,
+      "v_hub_mean": 11.746667,
+      "v_hub_spread": 0.435303,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.31,
+        "gfs_seamless": 11.68,
+        "icon_seamless": 11.25
+      },
+      "pc_raw": 0.9493,
+      "temp_c": -10.033333,
+      "actual": 0.415833
+    },
+    {
+      "target_time": "2026-01-20T22:00:00Z",
+      "target_time_local": "2026-01-21T03:00:00+05:00",
+      "lead_h": 3,
+      "lead_day": 1,
+      "p10": 0.628661,
+      "p50": 0.966695,
+      "p90": 1.0,
+      "v_hub_mean": 12.486667,
+      "v_hub_spread": 0.607966,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.33,
+        "gfs_seamless": 11.92,
+        "icon_seamless": 12.21
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -10.033333,
+      "actual": 0.6625
+    },
+    {
+      "target_time": "2026-01-20T23:00:00Z",
+      "target_time_local": "2026-01-21T04:00:00+05:00",
+      "lead_h": 4,
+      "lead_day": 1,
+      "p10": 0.678215,
+      "p50": 0.984538,
+      "p90": 1.0,
+      "v_hub_mean": 12.963333,
+      "v_hub_spread": 0.662437,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.63,
+        "gfs_seamless": 12.06,
+        "icon_seamless": 13.2
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -10.066667,
+      "actual": 0.818333
+    },
+    {
+      "target_time": "2026-01-21T00:00:00Z",
+      "target_time_local": "2026-01-21T05:00:00+05:00",
+      "lead_h": 5,
+      "lead_day": 1,
+      "p10": 0.697084,
+      "p50": 0.979299,
+      "p90": 1.0,
+      "v_hub_mean": 13.513333,
+      "v_hub_spread": 0.605383,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.76,
+        "gfs_seamless": 12.68,
+        "icon_seamless": 14.1
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -9.833333,
+      "actual": 0.945833
+    },
+    {
+      "target_time": "2026-01-21T01:00:00Z",
+      "target_time_local": "2026-01-21T06:00:00+05:00",
+      "lead_h": 6,
+      "lead_day": 1,
+      "p10": 0.687125,
+      "p50": 0.979299,
+      "p90": 1.0,
+      "v_hub_mean": 13.64,
+      "v_hub_spread": 0.747395,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.67,
+        "gfs_seamless": 12.71,
+        "icon_seamless": 14.54
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -9.6,
+      "actual": 0.886667
+    },
+    {
+      "target_time": "2026-01-21T02:00:00Z",
+      "target_time_local": "2026-01-21T07:00:00+05:00",
+      "lead_h": 7,
+      "lead_day": 1,
+      "p10": 0.697084,
+      "p50": 0.982195,
+      "p90": 1.0,
+      "v_hub_mean": 13.546667,
+      "v_hub_spread": 0.896859,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.26,
+        "gfs_seamless": 12.62,
+        "icon_seamless": 14.76
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -9.5,
+      "actual": 0.9875
+    },
+    {
+      "target_time": "2026-01-21T03:00:00Z",
+      "target_time_local": "2026-01-21T08:00:00+05:00",
+      "lead_h": 8,
+      "lead_day": 1,
+      "p10": 0.675417,
+      "p50": 0.983181,
+      "p90": 1.0,
+      "v_hub_mean": 13.61,
+      "v_hub_spread": 0.880568,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.26,
+        "gfs_seamless": 12.75,
+        "icon_seamless": 14.82
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -9.033333,
+      "actual": 0.988333
+    },
+    {
+      "target_time": "2026-01-21T04:00:00Z",
+      "target_time_local": "2026-01-21T09:00:00+05:00",
+      "lead_h": 9,
+      "lead_day": 1,
+      "p10": 0.676894,
+      "p50": 0.98655,
+      "p90": 1.0,
+      "v_hub_mean": 13.986667,
+      "v_hub_spread": 0.925791,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 14.15,
+        "gfs_seamless": 12.78,
+        "icon_seamless": 15.03
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -7.233333,
+      "actual": 0.99
+    },
+    {
+      "target_time": "2026-01-21T05:00:00Z",
+      "target_time_local": "2026-01-21T10:00:00+05:00",
+      "lead_h": 10,
+      "lead_day": 1,
+      "p10": 0.464675,
+      "p50": 0.852934,
+      "p90": 1.0,
+      "v_hub_mean": 14.22,
+      "v_hub_spread": 1.104264,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 15.32,
+        "gfs_seamless": 12.71,
+        "icon_seamless": 14.63
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.366667,
+      "actual": 0.94
+    },
+    {
+      "target_time": "2026-01-21T06:00:00Z",
+      "target_time_local": "2026-01-21T11:00:00+05:00",
+      "lead_h": 11,
+      "lead_day": 1,
+      "p10": 0.589175,
+      "p50": 0.912189,
+      "p90": 1.0,
+      "v_hub_mean": 14.22,
+      "v_hub_spread": 1.188192,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 15.9,
+        "gfs_seamless": 13.35,
+        "icon_seamless": 13.41
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -3.766667,
+      "actual": 0.989167
+    },
+    {
+      "target_time": "2026-01-21T07:00:00Z",
+      "target_time_local": "2026-01-21T12:00:00+05:00",
+      "lead_h": 12,
+      "lead_day": 1,
+      "p10": 0.721261,
+      "p50": 0.98286,
+      "p90": 1.0,
+      "v_hub_mean": 13.913333,
+      "v_hub_spread": 0.993523,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 15.09,
+        "gfs_seamless": 13.99,
+        "icon_seamless": 12.66
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -2.6,
+      "actual": 0.99
+    },
+    {
+      "target_time": "2026-01-21T08:00:00Z",
+      "target_time_local": "2026-01-21T13:00:00+05:00",
+      "lead_h": 13,
+      "lead_day": 1,
+      "p10": 0.716928,
+      "p50": 0.980119,
+      "p90": 1.0,
+      "v_hub_mean": 13.456667,
+      "v_hub_spread": 0.702772,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.74,
+        "gfs_seamless": 14.14,
+        "icon_seamless": 12.49
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -1.7,
+      "actual": 0.989167
+    },
+    {
+      "target_time": "2026-01-21T09:00:00Z",
+      "target_time_local": "2026-01-21T14:00:00+05:00",
+      "lead_h": 14,
+      "lead_day": 1,
+      "p10": 0.753617,
+      "p50": 0.979503,
+      "p90": 1.0,
+      "v_hub_mean": 12.873333,
+      "v_hub_spread": 0.722511,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.57,
+        "gfs_seamless": 13.87,
+        "icon_seamless": 12.18
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -1.4,
+      "actual": 0.9875
+    },
+    {
+      "target_time": "2026-01-21T10:00:00Z",
+      "target_time_local": "2026-01-21T15:00:00+05:00",
+      "lead_h": 15,
+      "lead_day": 1,
+      "p10": 0.705698,
+      "p50": 0.980868,
+      "p90": 1.0,
+      "v_hub_mean": 12.54,
+      "v_hub_spread": 0.404228,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.13,
+        "gfs_seamless": 13.09,
+        "icon_seamless": 12.4
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -1.733333,
+      "actual": 0.966667
+    },
+    {
+      "target_time": "2026-01-21T11:00:00Z",
+      "target_time_local": "2026-01-21T16:00:00+05:00",
+      "lead_h": 16,
+      "lead_day": 1,
+      "p10": 0.547917,
+      "p50": 0.958226,
+      "p90": 1.0,
+      "v_hub_mean": 12.58,
+      "v_hub_spread": 0.341272,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.11,
+        "gfs_seamless": 12.91,
+        "icon_seamless": 12.72
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -2.933333,
+      "actual": 0.986667
+    },
+    {
+      "target_time": "2026-01-21T12:00:00Z",
+      "target_time_local": "2026-01-21T17:00:00+05:00",
+      "lead_h": 17,
+      "lead_day": 2,
+      "p10": 0.529218,
+      "p50": 0.950062,
+      "p90": 1.0,
+      "v_hub_mean": 12.25,
+      "v_hub_spread": 0.206074,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.52,
+        "gfs_seamless": 12.21,
+        "icon_seamless": 12.02
+      },
+      "pc_raw": 0.956306,
+      "temp_c": -4.133333,
+      "actual": 0.983333
+    },
+    {
+      "target_time": "2026-01-21T13:00:00Z",
+      "target_time_local": "2026-01-21T18:00:00+05:00",
+      "lead_h": 18,
+      "lead_day": 2,
+      "p10": 0.483162,
+      "p50": 0.93615,
+      "p90": 1.0,
+      "v_hub_mean": 11.886667,
+      "v_hub_spread": 0.617594,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.76,
+        "gfs_seamless": 11.46,
+        "icon_seamless": 11.44
+      },
+      "pc_raw": 0.9493,
+      "temp_c": -4.833333,
+      "actual": 0.321667
+    },
+    {
+      "target_time": "2026-01-21T14:00:00Z",
+      "target_time_local": "2026-01-21T19:00:00+05:00",
+      "lead_h": 19,
+      "lead_day": 2,
+      "p10": 0.51494,
+      "p50": 0.956359,
+      "p90": 1.0,
+      "v_hub_mean": 12.206667,
+      "v_hub_spread": 0.581511,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.97,
+        "gfs_seamless": 12.09,
+        "icon_seamless": 11.56
+      },
+      "pc_raw": 0.956306,
+      "temp_c": -5.266667,
+      "actual": 0.056667
+    },
+    {
+      "target_time": "2026-01-21T15:00:00Z",
+      "target_time_local": "2026-01-21T20:00:00+05:00",
+      "lead_h": 20,
+      "lead_day": 2,
+      "p10": 0.444544,
+      "p50": 0.889978,
+      "p90": 1.0,
+      "v_hub_mean": 12.413333,
+      "v_hub_spread": 0.661782,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.24,
+        "gfs_seamless": 12.38,
+        "icon_seamless": 11.62
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.333333,
+      "actual": 0.194167
+    },
+    {
+      "target_time": "2026-01-21T16:00:00Z",
+      "target_time_local": "2026-01-21T21:00:00+05:00",
+      "lead_h": 21,
+      "lead_day": 2,
+      "p10": 0.286813,
+      "p50": 0.71811,
+      "p90": 1.0,
+      "v_hub_mean": 12.363333,
+      "v_hub_spread": 0.886805,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.42,
+        "gfs_seamless": 12.42,
+        "icon_seamless": 11.25
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.366667,
+      "actual": 0.193333
+    },
+    {
+      "target_time": "2026-01-21T17:00:00Z",
+      "target_time_local": "2026-01-21T22:00:00+05:00",
+      "lead_h": 22,
+      "lead_day": 2,
+      "p10": 0.267308,
+      "p50": 0.667866,
+      "p90": 1.0,
+      "v_hub_mean": 12.503333,
+      "v_hub_spread": 0.865384,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.47,
+        "gfs_seamless": 12.67,
+        "icon_seamless": 11.37
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.333333,
+      "actual": 0.168333
+    },
+    {
+      "target_time": "2026-01-21T18:00:00Z",
+      "target_time_local": "2026-01-21T23:00:00+05:00",
+      "lead_h": 23,
+      "lead_day": 2,
+      "p10": 0.591819,
+      "p50": 0.968886,
+      "p90": 1.0,
+      "v_hub_mean": 13.093333,
+      "v_hub_spread": 0.288251,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.47,
+        "gfs_seamless": 13.04,
+        "icon_seamless": 12.77
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.233333,
+      "actual": 0.321667
+    },
+    {
+      "target_time": "2026-01-21T19:00:00Z",
+      "target_time_local": "2026-01-22T00:00:00+05:00",
+      "lead_h": 24,
+      "lead_day": 2,
+      "p10": 0.435438,
+      "p50": 0.894229,
+      "p90": 1.0,
+      "v_hub_mean": 12.8,
+      "v_hub_spread": 0.524277,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.34,
+        "gfs_seamless": 12.97,
+        "icon_seamless": 12.09
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.3,
+      "actual": 0.4575
+    },
+    {
+      "target_time": "2026-01-21T20:00:00Z",
+      "target_time_local": "2026-01-22T01:00:00+05:00",
+      "lead_h": 25,
+      "lead_day": 2,
+      "p10": 0.092503,
+      "p50": 0.588752,
+      "p90": 1.0,
+      "v_hub_mean": 12.316667,
+      "v_hub_spread": 1.171618,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.12,
+        "gfs_seamless": 13.17,
+        "icon_seamless": 10.66
+      },
+      "pc_raw": 0.956306,
+      "temp_c": -5.4,
+      "actual": 0.534167
+    },
+    {
+      "target_time": "2026-01-21T21:00:00Z",
+      "target_time_local": "2026-01-22T02:00:00+05:00",
+      "lead_h": 26,
+      "lead_day": 2,
+      "p10": 0.277758,
+      "p50": 0.644596,
+      "p90": 1.0,
+      "v_hub_mean": 11.33,
+      "v_hub_spread": 1.531035,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.28,
+        "gfs_seamless": 12.54,
+        "icon_seamless": 9.17
+      },
+      "pc_raw": 0.929117,
+      "temp_c": -5.9,
+      "actual": 0.391667
+    },
+    {
+      "target_time": "2026-01-21T22:00:00Z",
+      "target_time_local": "2026-01-22T03:00:00+05:00",
+      "lead_h": 27,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.220744,
+      "p90": 0.510224,
+      "v_hub_mean": 8.9,
+      "v_hub_spread": 3.406239,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 10.38,
+        "gfs_seamless": 12.13,
+        "icon_seamless": 4.19
+      },
+      "pc_raw": 0.643641,
+      "temp_c": -6.4,
+      "actual": 0.4425
+    },
+    {
+      "target_time": "2026-01-21T23:00:00Z",
+      "target_time_local": "2026-01-22T04:00:00+05:00",
+      "lead_h": 28,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.026245,
+      "p90": 0.204306,
+      "v_hub_mean": 6.746667,
+      "v_hub_spread": 4.494933,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 8.04,
+        "gfs_seamless": 11.49,
+        "icon_seamless": 0.71
+      },
+      "pc_raw": 0.324966,
+      "temp_c": -7.2,
+      "actual": 0.213333
+    },
+    {
+      "target_time": "2026-01-22T00:00:00Z",
+      "target_time_local": "2026-01-22T05:00:00+05:00",
+      "lead_h": 29,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.043623,
+      "p90": 0.326881,
+      "v_hub_mean": 7.45,
+      "v_hub_spread": 2.732044,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 5.9,
+        "gfs_seamless": 11.29,
+        "icon_seamless": 5.16
+      },
+      "pc_raw": 0.424409,
+      "temp_c": -7.4,
+      "actual": 0.365
+    },
+    {
+      "target_time": "2026-01-22T01:00:00Z",
+      "target_time_local": "2026-01-22T06:00:00+05:00",
+      "lead_h": 30,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.07131,
+      "p90": 0.357897,
+      "v_hub_mean": 5.706667,
+      "v_hub_spread": 3.768256,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 4.01,
+        "gfs_seamless": 10.93,
+        "icon_seamless": 2.18
+      },
+      "pc_raw": 0.186596,
+      "temp_c": -8.433333,
+      "actual": 0.0925
+    },
+    {
+      "target_time": "2026-01-22T02:00:00Z",
+      "target_time_local": "2026-01-22T07:00:00+05:00",
+      "lead_h": 31,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.186615,
+      "p90": 0.567087,
+      "v_hub_mean": 5.193333,
+      "v_hub_spread": 3.615839,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 2.41,
+        "gfs_seamless": 10.3,
+        "icon_seamless": 2.87
+      },
+      "pc_raw": 0.141987,
+      "temp_c": -9.4,
+      "actual": 0.03
+    },
+    {
+      "target_time": "2026-01-22T03:00:00Z",
+      "target_time_local": "2026-01-22T08:00:00+05:00",
+      "lead_h": 32,
+      "lead_day": 2,
+      "p10": 0.028451,
+      "p50": 0.402756,
+      "p90": 0.87236,
+      "v_hub_mean": 5.676667,
+      "v_hub_spread": 2.774086,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 1.91,
+        "gfs_seamless": 8.51,
+        "icon_seamless": 6.61
+      },
+      "pc_raw": 0.186596,
+      "temp_c": -9.533333,
+      "actual": 0.01
+    },
+    {
+      "target_time": "2026-01-22T04:00:00Z",
+      "target_time_local": "2026-01-22T09:00:00+05:00",
+      "lead_h": 33,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.175651,
+      "p90": 0.531151,
+      "v_hub_mean": 7.44,
+      "v_hub_spread": 2.567061,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 4.05,
+        "gfs_seamless": 10.26,
+        "icon_seamless": 8.01
+      },
+      "pc_raw": 0.424409,
+      "temp_c": -6.633333,
+      "actual": 0.030833
+    },
+    {
+      "target_time": "2026-01-22T05:00:00Z",
+      "target_time_local": "2026-01-22T10:00:00+05:00",
+      "lead_h": 34,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.107385,
+      "p90": 0.404928,
+      "v_hub_mean": 7.34,
+      "v_hub_spread": 3.855135,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 7.48,
+        "gfs_seamless": 11.99,
+        "icon_seamless": 2.55
+      },
+      "pc_raw": 0.41381,
+      "temp_c": -3.4,
+      "actual": 0.016667
+    },
+    {
+      "target_time": "2026-01-22T06:00:00Z",
+      "target_time_local": "2026-01-22T11:00:00+05:00",
+      "lead_h": 35,
+      "lead_day": 2,
+      "p10": 0.021032,
+      "p50": 0.314867,
+      "p90": 0.859029,
+      "v_hub_mean": 8.986667,
+      "v_hub_spread": 0.626596,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 8.68,
+        "gfs_seamless": 9.86,
+        "icon_seamless": 8.42
+      },
+      "pc_raw": 0.662133,
+      "temp_c": -2.833333,
+      "actual": 0.010833
+    },
+    {
+      "target_time": "2026-01-22T07:00:00Z",
+      "target_time_local": "2026-01-22T12:00:00+05:00",
+      "lead_h": 36,
+      "lead_day": 2,
+      "p10": 0.0,
+      "p50": 0.200064,
+      "p90": 0.720208,
+      "v_hub_mean": 7.183333,
+      "v_hub_spread": 1.430858,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 5.16,
+        "gfs_seamless": 8.22,
+        "icon_seamless": 8.17
+      },
+      "pc_raw": 0.389256,
+      "temp_c": -2.666667,
+      "actual": 0.009167
+    },
+    {
+      "target_time": "2026-01-22T08:00:00Z",
+      "target_time_local": "2026-01-22T13:00:00+05:00",
+      "lead_h": 37,
+      "lead_day": 2,
+      "p10": 0.039024,
+      "p50": 0.375818,
+      "p90": 0.753824,
+      "v_hub_mean": 4.296667,
+      "v_hub_spread": 3.029371,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 1.34,
+        "gfs_seamless": 3.09,
+        "icon_seamless": 8.46
+      },
+      "pc_raw": 0.0862,
+      "temp_c": -2.633333,
+      "actual": 0.1525
+    },
+    {
+      "target_time": "2026-01-22T09:00:00Z",
+      "target_time_local": "2026-01-22T14:00:00+05:00",
+      "lead_h": 38,
+      "lead_day": 2,
+      "p10": 0.175532,
+      "p50": 0.69213,
+      "p90": 1.0,
+      "v_hub_mean": 6.136667,
+      "v_hub_spread": 4.073674,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 5.9,
+        "gfs_seamless": 1.27,
+        "icon_seamless": 11.24
+      },
+      "pc_raw": 0.242611,
+      "temp_c": -2.833333,
+      "actual": 0.324167
+    },
+    {
+      "target_time": "2026-01-22T10:00:00Z",
+      "target_time_local": "2026-01-22T15:00:00+05:00",
+      "lead_h": 39,
+      "lead_day": 2,
+      "p10": 0.12436,
+      "p50": 0.462338,
+      "p90": 0.907762,
+      "v_hub_mean": 7.823333,
+      "v_hub_spread": 2.687258,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 8.2,
+        "gfs_seamless": 4.36,
+        "icon_seamless": 10.91
+      },
+      "pc_raw": 0.480681,
+      "temp_c": -3.233333,
+      "actual": 0.311667
+    },
+    {
+      "target_time": "2026-01-22T11:00:00Z",
+      "target_time_local": "2026-01-22T16:00:00+05:00",
+      "lead_h": 40,
+      "lead_day": 2,
+      "p10": 0.255471,
+      "p50": 0.619547,
+      "p90": 0.968876,
+      "v_hub_mean": 10.09,
+      "v_hub_spread": 1.391857,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 9.46,
+        "gfs_seamless": 8.79,
+        "icon_seamless": 12.02
+      },
+      "pc_raw": 0.814973,
+      "temp_c": -4.033333,
+      "actual": 0.501667
+    },
+    {
+      "target_time": "2026-01-22T12:00:00Z",
+      "target_time_local": "2026-01-22T17:00:00+05:00",
+      "lead_h": 41,
+      "lead_day": 3,
+      "p10": 0.559338,
+      "p50": 0.926143,
+      "p90": 1.0,
+      "v_hub_mean": 11.316667,
+      "v_hub_spread": 3.205644,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 11.93,
+        "gfs_seamless": 7.12,
+        "icon_seamless": 14.9
+      },
+      "pc_raw": 0.929117,
+      "temp_c": -5.166667,
+      "actual": 0.491667
+    },
+    {
+      "target_time": "2026-01-22T13:00:00Z",
+      "target_time_local": "2026-01-22T18:00:00+05:00",
+      "lead_h": 42,
+      "lead_day": 3,
+      "p10": 0.59398,
+      "p50": 0.919216,
+      "p90": 1.0,
+      "v_hub_mean": 12.603333,
+      "v_hub_spread": 2.400032,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.04,
+        "gfs_seamless": 9.47,
+        "icon_seamless": 15.3
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.7,
+      "actual": 0.46
+    },
+    {
+      "target_time": "2026-01-22T14:00:00Z",
+      "target_time_local": "2026-01-22T19:00:00+05:00",
+      "lead_h": 43,
+      "lead_day": 3,
+      "p10": 0.703833,
+      "p50": 0.958068,
+      "p90": 1.0,
+      "v_hub_mean": 13.256667,
+      "v_hub_spread": 2.373258,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.71,
+        "gfs_seamless": 10.15,
+        "icon_seamless": 15.91
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -5.7,
+      "actual": 0.74
+    },
+    {
+      "target_time": "2026-01-22T15:00:00Z",
+      "target_time_local": "2026-01-22T20:00:00+05:00",
+      "lead_h": 44,
+      "lead_day": 3,
+      "p10": 0.712218,
+      "p50": 0.956572,
+      "p90": 1.0,
+      "v_hub_mean": 13.02,
+      "v_hub_spread": 2.326929,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.84,
+        "gfs_seamless": 9.85,
+        "icon_seamless": 15.37
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -6.033333,
+      "actual": 0.788333
+    },
+    {
+      "target_time": "2026-01-22T16:00:00Z",
+      "target_time_local": "2026-01-22T21:00:00+05:00",
+      "lead_h": 45,
+      "lead_day": 3,
+      "p10": 0.712218,
+      "p50": 0.95445,
+      "p90": 1.0,
+      "v_hub_mean": 13.023333,
+      "v_hub_spread": 1.025844,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 13.37,
+        "gfs_seamless": 11.63,
+        "icon_seamless": 14.07
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -6.166667,
+      "actual": 0.698333
+    },
+    {
+      "target_time": "2026-01-22T17:00:00Z",
+      "target_time_local": "2026-01-22T22:00:00+05:00",
+      "lead_h": 46,
+      "lead_day": 3,
+      "p10": 0.564063,
+      "p50": 0.935119,
+      "p90": 1.0,
+      "v_hub_mean": 12.466667,
+      "v_hub_spread": 0.244994,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 12.46,
+        "gfs_seamless": 12.17,
+        "icon_seamless": 12.77
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -6.366667,
+      "actual": 0.9675
+    },
+    {
+      "target_time": "2026-01-22T18:00:00Z",
+      "target_time_local": "2026-01-22T23:00:00+05:00",
+      "lead_h": 47,
+      "lead_day": 3,
+      "p10": 0.600729,
+      "p50": 0.938295,
+      "p90": 1.0,
+      "v_hub_mean": 12.316667,
+      "v_hub_spread": 0.381255,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 11.79,
+        "gfs_seamless": 12.48,
+        "icon_seamless": 12.68
+      },
+      "pc_raw": 0.956306,
+      "temp_c": -5.666667,
+      "actual": 0.983333
+    },
+    {
+      "target_time": "2026-01-22T19:00:00Z",
+      "target_time_local": "2026-01-23T00:00:00+05:00",
+      "lead_h": 48,
+      "lead_day": 3,
+      "p10": 0.568651,
+      "p50": 0.912148,
+      "p90": 1.0,
+      "v_hub_mean": 12.52,
+      "v_hub_spread": 0.644101,
+      "nwp_v_hub": {
+        "ecmwf_ifs025": 11.61,
+        "gfs_seamless": 13.01,
+        "icon_seamless": 12.94
+      },
+      "pc_raw": 0.960308,
+      "temp_c": -6.066667,
+      "actual": 0.985833
+    }
+  ],
+  "summary": {
+    "mean_p50": 0.728066,
+    "energy_p50_mwh": 174.73579,
+    "max_p90": 1.0,
+    "mean_band": 0.480633,
+    "dayahead_mean_p50": 0.525606
+  },
+  "flags": [
+    {
+      "code": "RAMP_DOWN",
+      "severity": "warn",
+      "start": "2026-01-21T21:00:00Z",
+      "end": "2026-01-21T21:00:00Z",
+      "value": -0.3243,
+      "message": "Ramp-Down of 32% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_DOWN",
+      "severity": "warn",
+      "start": "2026-01-21T22:00:00Z",
+      "end": "2026-01-21T22:00:00Z",
+      "value": -0.6735,
+      "message": "Ramp-Down of 67% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_DOWN",
+      "severity": "warn",
+      "start": "2026-01-21T23:00:00Z",
+      "end": "2026-01-21T23:00:00Z",
+      "value": -0.5625,
+      "message": "Ramp-Down of 56% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_DOWN",
+      "severity": "warn",
+      "start": "2026-01-22T00:00:00Z",
+      "end": "2026-01-22T00:00:00Z",
+      "value": -0.601,
+      "message": "Ramp-Down of 60% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_UP",
+      "severity": "warn",
+      "start": "2026-01-22T03:00:00Z",
+      "end": "2026-01-22T03:00:00Z",
+      "value": 0.3591,
+      "message": "Ramp-Up of 36% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_UP",
+      "severity": "warn",
+      "start": "2026-01-22T09:00:00Z",
+      "end": "2026-01-22T09:00:00Z",
+      "value": 0.3773,
+      "message": "Ramp-Up of 38% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_UP",
+      "severity": "warn",
+      "start": "2026-01-22T13:00:00Z",
+      "end": "2026-01-22T13:00:00Z",
+      "value": 0.4569,
+      "message": "Ramp-Up of 46% capacity within 3 h"
+    },
+    {
+      "code": "RAMP_UP",
+      "severity": "warn",
+      "start": "2026-01-22T14:00:00Z",
+      "end": "2026-01-22T14:00:00Z",
+      "value": 0.3385,
+      "message": "Ramp-Up of 34% capacity within 3 h"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-20T20:00:00Z",
+      "end": "2026-01-20T20:00:00Z",
+      "value": 0.5641,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T05:00:00Z",
+      "end": "2026-01-21T05:00:00Z",
+      "value": 0.5353,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T13:00:00Z",
+      "end": "2026-01-21T13:00:00Z",
+      "value": 0.5168,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T15:00:00Z",
+      "end": "2026-01-21T15:00:00Z",
+      "value": 0.5555,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T16:00:00Z",
+      "end": "2026-01-21T16:00:00Z",
+      "value": 0.7132,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T17:00:00Z",
+      "end": "2026-01-21T17:00:00Z",
+      "value": 0.7327,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T19:00:00Z",
+      "end": "2026-01-21T19:00:00Z",
+      "value": 0.5646,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T20:00:00Z",
+      "end": "2026-01-21T20:00:00Z",
+      "value": 0.9075,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T21:00:00Z",
+      "end": "2026-01-21T21:00:00Z",
+      "value": 0.7222,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-21T22:00:00Z",
+      "end": "2026-01-21T22:00:00Z",
+      "value": 0.5102,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-21T22:00:00Z",
+      "end": "2026-01-21T22:00:00Z",
+      "value": 3.406,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-21T23:00:00Z",
+      "end": "2026-01-21T23:00:00Z",
+      "value": 4.495,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T00:00:00Z",
+      "end": "2026-01-22T00:00:00Z",
+      "value": 2.732,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T01:00:00Z",
+      "end": "2026-01-22T01:00:00Z",
+      "value": 3.768,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T02:00:00Z",
+      "end": "2026-01-22T02:00:00Z",
+      "value": 0.5671,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T02:00:00Z",
+      "end": "2026-01-22T02:00:00Z",
+      "value": 3.616,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T03:00:00Z",
+      "end": "2026-01-22T03:00:00Z",
+      "value": 0.8439,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T03:00:00Z",
+      "end": "2026-01-22T03:00:00Z",
+      "value": 2.774,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T04:00:00Z",
+      "end": "2026-01-22T04:00:00Z",
+      "value": 0.5312,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T04:00:00Z",
+      "end": "2026-01-22T04:00:00Z",
+      "value": 2.567,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T05:00:00Z",
+      "end": "2026-01-22T05:00:00Z",
+      "value": 3.855,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T06:00:00Z",
+      "end": "2026-01-22T06:00:00Z",
+      "value": 0.838,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T07:00:00Z",
+      "end": "2026-01-22T07:00:00Z",
+      "value": 0.7202,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T08:00:00Z",
+      "end": "2026-01-22T08:00:00Z",
+      "value": 0.7148,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T08:00:00Z",
+      "end": "2026-01-22T08:00:00Z",
+      "value": 3.029,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T09:00:00Z",
+      "end": "2026-01-22T09:00:00Z",
+      "value": 0.8245,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T09:00:00Z",
+      "end": "2026-01-22T09:00:00Z",
+      "value": 4.074,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T10:00:00Z",
+      "end": "2026-01-22T10:00:00Z",
+      "value": 0.7834,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T10:00:00Z",
+      "end": "2026-01-22T10:00:00Z",
+      "value": 2.687,
+      "message": "Weather models disagree on hub-height wind"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "severity": "warn",
+      "start": "2026-01-22T11:00:00Z",
+      "end": "2026-01-22T11:00:00Z",
+      "value": 0.7134,
+      "message": "Prediction interval is wider than 50% of capacity"
+    },
+    {
+      "code": "MODEL_DISAGREEMENT",
+      "severity": "warn",
+      "start": "2026-01-22T12:00:00Z",
+      "end": "2026-01-22T12:00:00Z",
+      "value": 3.206,
+      "message": "Weather models disagree on hub-height wind"
+    }
+  ]
+}
