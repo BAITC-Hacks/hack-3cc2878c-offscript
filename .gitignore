@@ -21,3 +21,4 @@ frontend/dist/
 
 # Local service state; reproducible forecast inputs and outputs remain tracked.
 data/outputs/agent_runs/*.tmp
+data/ledger/*.pre_immutable_migration.jsonl

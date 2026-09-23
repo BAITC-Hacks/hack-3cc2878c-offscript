@@ -23,13 +23,14 @@ def _allowed_numbers(facts: dict[str, Any]) -> set[str]:
 
 def is_grounded(text: str, facts: dict[str, Any]) -> bool:
     allowed = _allowed_numbers(facts)
-    return all(token.replace(",", ".") in allowed or token in allowed for token in NUMBER.findall(text))
+    prose = re.sub(r"(?i)\bp(?:10|50|90)\b", "", text)
+    return all(token.replace(",", ".") in allowed or token in allowed for token in NUMBER.findall(prose))
 
 
 def briefings_are_grounded(briefings: Briefings, facts: dict[str, Any]) -> bool:
     for item in (briefings.en, briefings.ru, briefings.kk):
         parts = [item.headline, item.summary, *item.actions]
-        parts.extend(risk.get("text", "") for risk in item.risks)
+        parts.extend(risk.text for risk in item.risks)
         if not all(is_grounded(part, facts) for part in parts):
             return False
     return True

@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+!.env.example
+frontend/.env.local
+frontend/node_modules
+frontend/dist
+.venv
+**/__pycache__
+**/.pytest_cache
+*.pyc
+Dataset HackAlemAI*.csv

@@ -44,6 +44,19 @@ class RunRegistry:
     def __init__(self, output_dir: Path):
         self.output_dir = output_dir
         self.runs: dict[str, Run] = {}
+        if output_dir.exists():
+            for path in sorted(output_dir.glob("r_*.json")):
+                try:
+                    saved = json.loads(path.read_text(encoding="utf-8"))
+                    run = Run(run_id=saved["run_id"], issue_date=saved["issue_date"], mode=saved["mode"],
+                              events=saved.get("events", []), status=saved.get("status", "error"),
+                              result=saved.get("result"), decision=saved.get("decision"),
+                              started_at=saved.get("started_at", now_iso()))
+                    if run.status == "running":
+                        run.status = "error"  # A process restart cannot resume an in-flight cycle.
+                    self.runs[run.run_id] = run
+                except (KeyError, ValueError, TypeError):
+                    continue
 
     def create(self, issue_date: str, mode: str) -> Run:
         run = Run(run_id=f"r_{issue_date.replace('-', '')}_{secrets.token_hex(3)}", issue_date=issue_date, mode=mode)

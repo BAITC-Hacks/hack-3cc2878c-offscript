@@ -1,7 +1,11 @@
+import json
+
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from ..agent.briefing import template
+from ..ledger import sha
 from ..ml_bridge import ml
+from ..settings import settings
 
 router = APIRouter(tags=["forecast"])
 
@@ -12,13 +16,35 @@ def forecast(request: Request, issue_date: str = Query(...), variant: str = "hyb
         raise HTTPException(422, "Unknown mode")
     if variant not in {"hybrid", "mos_pc", "raw_pc", "climatology", "persistence"}:
         raise HTTPException(422, "Unknown model variant")
-    result = ml.run_forecast(issue_date, variant=variant, mode=mode)
+    if issue_date not in ml.list_issue_dates(mode):
+        raise HTTPException(422, "Issue date is outside the selected schedule")
+    result = None
+    ledger = request.app.state.ledger
+    for block in reversed(ledger.blocks):
+        if block.get("issue_date") != issue_date or (block.get("variant") and block["variant"] != variant):
+            continue
+        payload_file = block.get("payload_file")
+        if not payload_file:
+            continue
+        published = (settings.repo_root / payload_file).resolve()
+        if not published.is_relative_to(settings.repo_root.resolve()) or not published.exists():
+            continue
+        stored = json.loads(published.read_text(encoding="utf-8"))
+        if stored.get("variant") == variant and stored.get("mode") == mode and sha(stored.get("rows", [])) == block.get("payload_sha256"):
+            result = stored
+            break
+    if result is None:
+        result = ml.run_forecast(issue_date, variant=variant, mode=mode)
     flags = ml.risk_scan(result)
     result["flags"] = flags
-    ledger = request.app.state.ledger
-    latest = ledger.blocks[-1]
-    result["ledger"] = {"block_index": latest["index"], "hash": latest["hash"], "verified": ledger.verify()["valid"]}
-    result["briefing"] = template(result, flags).model_dump()
+    payload_hash = sha(result["rows"])
+    proof = next((block for block in reversed(ledger.blocks)
+                  if block.get("issue_date") == issue_date and block.get("payload_sha256") == payload_hash), None)
+    if proof:
+        result["ledger"] = {"block_index": proof["index"], "hash": proof["hash"], "verified": ledger.verify()["valid"]}
+    else:
+        result.pop("ledger", None)
+    result["briefing"] = result.get("briefing") or template(result, flags).model_dump()
     return result
 
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -16,18 +18,20 @@ def test_health_meta_and_forecast_contract():
         assert len(forecast["rows"]) == 48
         assert forecast["issue_time"] == "2026-02-13T19:00:00Z"
         assert all(row["p10"] <= row["p50"] <= row["p90"] for row in forecast["rows"])
-        assert forecast["ledger"]["verified"] is True
+        # A computed-but-unpublished forecast must not borrow another block's proof.
+        assert forecast.get("ledger") is None or forecast["ledger"]["verified"] is True
 
 
 def test_agent_run_completes_offline():
     with TestClient(app) as client:
-        launched = client.post("/api/agent/run", json={"issue_date": "2026-02-14", "mode": "test", "use_llm": False})
+        launched = client.post("/api/agent/run", json={"issue_date": "2026-02-15", "mode": "test", "use_llm": False})
         assert launched.status_code == 200
         run_id = launched.json()["run_id"]
-        for _ in range(100):
+        for _ in range(200):
             status = client.get(f"/api/agent/runs/{run_id}").json()
             if status["status"] != "running":
                 break
+            time.sleep(0.05)
         assert status["status"] == "done"
         assert status["result"]["ledger"]["verified"] is True
         with client.stream("GET", f"/api/agent/stream/{run_id}") as stream:

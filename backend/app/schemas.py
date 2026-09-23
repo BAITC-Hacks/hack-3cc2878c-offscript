@@ -55,12 +55,17 @@ class ForecastResult(SamalModel):
     flags: list[RiskFlag] = Field(default_factory=list)
 
 
+class BriefingRisk(SamalModel):
+    code: str
+    text: str
+
+
 class BriefingItem(SamalModel):
     lang: Literal["en", "ru", "kk"]
     headline: str
     summary: str
-    risks: list[dict[str, str]] = Field(default_factory=list)
-    actions: list[str] = Field(default_factory=list)
+    risks: list[BriefingRisk]
+    actions: list[str]
     confidence: Literal["low", "medium", "high"]
     grounded: bool
     generated_by: Literal["llm", "template"]
@@ -95,6 +100,7 @@ class RecalcRequest(SamalModel):
     issue_date: str
     mode: Mode = "test"
     reason: str = "new_nwp"
+    use_llm: bool = True
 
 
 class LedgerBlock(SamalModel):

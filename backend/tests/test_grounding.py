@@ -1,4 +1,4 @@
-from app.agent.briefing import is_grounded, template
+from app.agent.briefing import briefings_are_grounded, is_grounded, template
 
 
 def test_grounding_rejects_unknown_number():
@@ -12,3 +12,14 @@ def test_template_is_grounded():
     briefing = template(forecast, []).en
     assert briefing.grounded
     assert briefing.generated_by == "template"
+
+
+def test_briefing_schema_and_quantile_labels_are_grounded():
+    forecast = {"summary": {"dayahead_mean_p50": 0.44, "energy_p50_mwh": 55.2, "mean_band": 0.38}}
+    briefings = template(forecast, [])
+    assert briefings_are_grounded(briefings, {"summary": forecast["summary"], "horizon_hours": 48})
+    from openai.lib._pydantic import to_strict_json_schema
+
+    schema = to_strict_json_schema(type(briefings))
+    item = schema["$defs"]["BriefingItem"]
+    assert set(item["required"]) == set(item["properties"])

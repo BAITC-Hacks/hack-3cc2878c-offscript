@@ -24,7 +24,7 @@ async def run_agent(body: AgentRunRequest, request: Request) -> dict:
 
 @router.post("/api/agent/recalc")
 async def recalc(body: RecalcRequest, request: Request) -> dict:
-    return await _start(request, body.issue_date, body.mode, True, recalc=True, reason=body.reason)
+    return await _start(request, body.issue_date, body.mode, body.use_llm, recalc=True, reason=body.reason)
 
 
 @router.get("/api/agent/stream/{run_id}")

@@ -25,3 +25,15 @@ def test_tamper_demo_never_writes_payload(tmp_path):
     assert result["valid"] is False
     assert result["first_bad_block"] == 1
     assert payload.read_text(encoding="utf-8") == before
+
+
+def test_missing_published_payload_invalidates_proof(tmp_path):
+    payload = tmp_path / "forecast.json"
+    payload.write_text(json.dumps({"rows": [{"p50": 0.2}]}), encoding="utf-8")
+    ledger = Ledger(tmp_path / "ledger.jsonl")
+    ledger.append("FORECAST", [{"p50": 0.2}], payload_file=str(payload))
+    assert ledger.verify()["valid"]
+    payload.unlink()
+    result = ledger.verify()
+    assert not result["valid"]
+    assert {error["reason"] for error in result["errors"]} == {"payload file missing"}

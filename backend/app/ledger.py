@@ -79,7 +79,9 @@ class Ledger:
                 errors.append({"block_index": index, "reason": "hash mismatch"})
             if check_files and block.get("payload_file"):
                 rows = self._payload_rows(block)
-                if rows is not None and sha(rows) != block.get("payload_sha256"):
+                if rows is None:
+                    errors.append({"block_index": index, "reason": "payload file missing"})
+                elif sha(rows) != block.get("payload_sha256"):
                     errors.append({"block_index": index, "reason": "payload_sha256 mismatch"})
             issue = _parse(block.get("issue_time"))
             nwp = _parse(block.get("max_nwp_init_time_used"))
