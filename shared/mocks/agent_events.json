@@ -1,0 +1,259 @@
+[
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 0,
+  "ts": "2026-09-23T10:15:00Z",
+  "stage": "PLAN",
+  "type": "stage_start",
+  "title": "Planning forecast for issue 2026-02-14 00:00 (UTC+5)",
+  "detail": {},
+  "actor": "orchestrator",
+  "llm": null,
+  "duration_ms": null
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 1,
+  "ts": "2026-09-23T10:15:02Z",
+  "stage": "PLAN",
+  "type": "llm_decision",
+  "title": "Plan: 3 NWP models, hybrid quantile model, full risk scan",
+  "detail": {
+   "steps": [
+    "fetch_nwp",
+    "check_inputs",
+    "run_forecast",
+    "risk_scan"
+   ],
+   "variant": "hybrid"
+  },
+  "actor": "orchestrator",
+  "llm": {
+   "provider": "anthropic",
+   "model": "claude-sonnet",
+   "cached": true,
+   "latency_ms": 0
+  },
+  "duration_ms": 1400
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 2,
+  "ts": "2026-09-23T10:15:04Z",
+  "stage": "FETCH",
+  "type": "tool_call",
+  "title": "fetch_nwp(issue_date=2026-02-14)",
+  "detail": {
+   "models": [
+    "ecmwf_ifs025",
+    "gfs_seamless",
+    "icon_seamless"
+   ]
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": null
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 3,
+  "ts": "2026-09-23T10:15:06Z",
+  "stage": "FETCH",
+  "type": "tool_result",
+  "title": "Fetched 3/3 models · max NWP init used 2026-02-13 11:00Z ✓ TemporalGuard",
+  "detail": {
+   "coverage": {
+    "ecmwf_ifs025": 1.0,
+    "gfs_seamless": 1.0,
+    "icon_seamless": 1.0
+   },
+   "latency_h": 8
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": 380
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 4,
+  "ts": "2026-09-23T10:15:08Z",
+  "stage": "QC",
+  "type": "tool_result",
+  "title": "Inputs OK · mean model spread 1.9 m/s",
+  "detail": {
+   "ok": true,
+   "spread_mean_ms": 1.9
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": 40
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 5,
+  "ts": "2026-09-23T10:15:10Z",
+  "stage": "PREDICT",
+  "type": "tool_result",
+  "title": "Forecast ready: day-ahead mean 44% · band 31 pp",
+  "detail": {
+   "variant": "hybrid",
+   "widen": 0.0
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": 210
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 6,
+  "ts": "2026-09-23T10:15:12Z",
+  "stage": "ANALYZE",
+  "type": "tool_result",
+  "title": "2 flags: RAMP_UP (warn), MODEL_DISAGREEMENT (info)",
+  "detail": {
+   "flags": [
+    "RAMP_UP",
+    "MODEL_DISAGREEMENT"
+   ]
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": 15
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 7,
+  "ts": "2026-09-23T10:15:14Z",
+  "stage": "DECIDE",
+  "type": "llm_decision",
+  "title": "ACCEPT: ramp is supported by all 3 models",
+  "detail": {
+   "action": "ACCEPT",
+   "rationale": "Ramp consistent across ECMWF/GFS/ICON"
+  },
+  "actor": "orchestrator",
+  "llm": {
+   "provider": "anthropic",
+   "model": "claude-sonnet",
+   "cached": true,
+   "latency_ms": 0
+  },
+  "duration_ms": 1800
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 8,
+  "ts": "2026-09-23T10:15:16Z",
+  "stage": "CRITIC",
+  "type": "critic",
+  "title": "Critic rejects: band too narrow for 2.4 m/s GFS-ECMWF gap during ramp",
+  "detail": {
+   "approve": false,
+   "issues": [
+    "P10–P90 narrower than NWP spread implies at 22:00–02:00"
+   ],
+   "suggestion": {
+    "action": "WIDEN",
+    "widen": 0.05
+   }
+  },
+  "actor": "critic",
+  "llm": {
+   "provider": "anthropic",
+   "model": "claude-sonnet",
+   "cached": true,
+   "latency_ms": 0
+  },
+  "duration_ms": 2100
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 9,
+  "ts": "2026-09-23T10:15:18Z",
+  "stage": "PREDICT",
+  "type": "tool_result",
+  "title": "Re-run with widen=0.05 → band 38 pp",
+  "detail": {
+   "variant": "hybrid",
+   "widen": 0.05
+  },
+  "actor": "tool",
+  "llm": null,
+  "duration_ms": 190
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 10,
+  "ts": "2026-09-23T10:15:20Z",
+  "stage": "CRITIC",
+  "type": "critic",
+  "title": "Critic approves (loop 2)",
+  "detail": {
+   "approve": true,
+   "issues": []
+  },
+  "actor": "critic",
+  "llm": {
+   "provider": "anthropic",
+   "model": "claude-sonnet",
+   "cached": true,
+   "latency_ms": 0
+  },
+  "duration_ms": 1500
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 11,
+  "ts": "2026-09-23T10:15:22Z",
+  "stage": "BRIEF",
+  "type": "briefing",
+  "title": "Briefings generated EN/RU/KZ · ✓ numeric grounding passed",
+  "detail": {
+   "grounded": true,
+   "langs": [
+    "en",
+    "ru",
+    "kk"
+   ]
+  },
+  "actor": "orchestrator",
+  "llm": {
+   "provider": "anthropic",
+   "model": "claude-sonnet",
+   "cached": true,
+   "latency_ms": 0
+  },
+  "duration_ms": 3200
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 12,
+  "ts": "2026-09-23T10:15:24Z",
+  "stage": "PUBLISH",
+  "type": "ledger",
+  "title": "Sealed as block #16 · 3f2a9c…",
+  "detail": {
+   "block_index": 16,
+   "hash": "1ea46d5dab426bc95b04e102793abcf8aa7045febe7d9d41fd6cda958bec3bc6"
+  },
+  "actor": "ledger",
+  "llm": null,
+  "duration_ms": 5
+ },
+ {
+  "run_id": "r_20260214_demo",
+  "seq": 13,
+  "ts": "2026-09-23T10:15:26Z",
+  "stage": "DONE",
+  "type": "done",
+  "title": "Done: ACCEPT after 2 critic loops",
+  "detail": {
+   "decision": "ACCEPT",
+   "block_index": 16,
+   "loops": 2
+  },
+  "actor": "orchestrator",
+  "llm": null,
+  "duration_ms": null
+ }
+]

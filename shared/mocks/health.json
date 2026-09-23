@@ -1,0 +1,6 @@
+{
+ "status": "ok",
+ "version": "0.1.0",
+ "llm_provider": "none",
+ "weather_offline": true
+}

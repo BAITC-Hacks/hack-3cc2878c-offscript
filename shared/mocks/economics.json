@@ -1,0 +1,20 @@
+{
+ "_mock": true,
+ "mode": "val_feb2025",
+ "capacity_mw": 5,
+ "price_kzt_mwh": 15000,
+ "assumption_note": "Illustrative flat imbalance price",
+ "hours": 672,
+ "imbalance_mwh": {
+  "hybrid": 406.6,
+  "persistence": 692.2,
+  "climatology": 638.4
+ },
+ "cost_kzt": {
+  "hybrid": 6099000,
+  "persistence": 10383000
+ },
+ "savings_vs_persistence_kzt": 4284000,
+ "savings_pct": 41.3,
+ "annualized_savings_kzt": 55800000
+}

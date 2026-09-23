@@ -1,0 +1,15 @@
+services:
+  backend:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    env_file: [ .env ]
+    environment:
+      - WEATHER_OFFLINE=1   # judges replay from committed cache; set 0 + run `make fetch` locally to refetch
+    ports: [ "8000:8000" ]
+    volumes: [ "./data:/app/data" ]
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args: { VITE_API_URL: "http://localhost:8000", VITE_USE_MOCKS: "0" }
+    ports: [ "5173:80" ]
+    depends_on: [ backend ]

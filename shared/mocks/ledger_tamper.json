@@ -1,0 +1,10 @@
+{
+ "valid": false,
+ "first_bad_block": 5,
+ "errors": [
+  {
+   "block_index": 5,
+   "reason": "payload_sha256 mismatch"
+  }
+ ]
+}
