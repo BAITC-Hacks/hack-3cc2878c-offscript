@@ -2,7 +2,7 @@
 
 This folder contains the leakage-safe probabilistic forecasting engine for the two-turbine Shelek wind farm.
 
-## What it does
+## What it does.
 
 - Loads the two raw SCADA CSV files from `data/raw/`, converts their local statistical time to UTC, and aggregates them to hourly farm power.
 - Retains missing, stuck, outage, and potential-icing flags. It does not silently fill or discard bad intervals.
