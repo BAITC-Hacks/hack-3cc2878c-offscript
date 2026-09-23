@@ -20,7 +20,7 @@ def _bool(name: str, default: bool) -> bool:
 @dataclass(frozen=True)
 class Settings:
     repo_root: Path = _REPO_ROOT
-    use_ml_stub: bool = _bool("USE_ML_STUB", True)
+    use_ml_stub: bool = _bool("USE_ML_STUB", False)
     weather_offline: bool = _bool("WEATHER_OFFLINE", True)
     llm_provider: str = os.getenv("LLM_PROVIDER", "none").lower()
     llm_model: str = os.getenv("LLM_MODEL", "")

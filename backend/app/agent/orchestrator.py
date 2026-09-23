@@ -17,8 +17,9 @@ from .llm import LLM, LLMUnavailable
 
 
 class Orchestrator:
-    def __init__(self, ledger: Ledger, runs: RunRegistry, llm: LLM):
+    def __init__(self, ledger: Ledger, runs: RunRegistry, llm: LLM, *, repo_root: Path | None = None):
         self.ledger, self.runs, self.llm = ledger, runs, llm
+        self.repo_root = repo_root or settings.repo_root
 
     async def _pace(self) -> None:
         if settings.demo_pacing:
@@ -40,7 +41,7 @@ class Orchestrator:
 
     def _write_forecast(self, forecast: dict[str, Any], run_id: str) -> Path:
         # A ledger block must never point at a mutable "latest forecast" path.
-        path = settings.outputs_dir / "ledger_payloads" / f"{run_id}.json"
+        path = self.repo_root / "data" / "outputs" / "ledger_payloads" / f"{run_id}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(forecast, ensure_ascii=False, indent=2), encoding="utf-8")
         return path
@@ -49,8 +50,8 @@ class Orchestrator:
         for block in reversed(self.ledger.blocks):
             if block.get("issue_date") != issue_date or not block.get("payload_file"):
                 continue
-            path = (settings.repo_root / block["payload_file"]).resolve()
-            if not path.is_relative_to(settings.repo_root.resolve()) or not path.exists():
+            path = (self.repo_root / block["payload_file"]).resolve()
+            if not path.is_relative_to(self.repo_root.resolve()) or not path.exists():
                 continue
             payload = json.loads(path.read_text(encoding="utf-8"))
             if payload.get("mode") == mode and sha(payload.get("rows", [])) == block.get("payload_sha256"):
@@ -180,7 +181,7 @@ class Orchestrator:
             payload_path = self._write_forecast(forecast, run.run_id)
             if not any(block.get("model_version") == forecast["model_version"] for block in self.ledger.blocks):
                 self.ledger.append("MODEL_TRAINED", [], issue_time=forecast["issue_time"], model_version=forecast["model_version"], note="Model observed by backend")
-            relative_payload = payload_path.relative_to(settings.repo_root).as_posix()
+            relative_payload = payload_path.relative_to(self.repo_root).as_posix()
             block_type = "REVISION" if recalc and previous else "FORECAST"
             block = self.ledger.append(block_type, forecast["rows"], issue_date=run.issue_date, issue_time=forecast["issue_time"],
                                        variant=forecast["variant"],

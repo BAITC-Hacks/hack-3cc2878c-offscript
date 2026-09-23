@@ -41,7 +41,7 @@ LAT = 43.6442
 LON = 78.5372
 HUB_HEIGHT_M = 100.0
 FARM_CAPACITY_MW = float(os.getenv("FARM_CAPACITY_MW", "5.0"))
-LATENCY_H = int(os.getenv("LATENCY_H", "8"))
+LATENCY_H = int(os.getenv("NWP_LATENCY_H", os.getenv("LATENCY_H", "8")))
 TZ_NAME = "Asia/Almaty"
 WEATHER_OFFLINE = os.getenv("WEATHER_OFFLINE", "0") == "1"
 

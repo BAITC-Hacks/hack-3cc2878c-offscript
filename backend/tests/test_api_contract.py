@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import create_app
 
 
-def test_health_meta_and_forecast_contract():
-    with TestClient(app) as client:
+def test_health_meta_and_forecast_contract(tmp_path: Path):
+    with TestClient(create_app(repo_root=tmp_path)) as client:
         assert client.get("/api/health").json()["status"] == "ok"
         meta = client.get("/api/meta").json()
         assert meta["farm"]["tz"] == "Asia/Almaty"
@@ -22,8 +23,8 @@ def test_health_meta_and_forecast_contract():
         assert forecast.get("ledger") is None or forecast["ledger"]["verified"] is True
 
 
-def test_agent_run_completes_offline():
-    with TestClient(app) as client:
+def test_agent_run_completes_offline(tmp_path: Path):
+    with TestClient(create_app(repo_root=tmp_path)) as client:
         launched = client.post("/api/agent/run", json={"issue_date": "2026-02-15", "mode": "test", "use_llm": False})
         assert launched.status_code == 200
         run_id = launched.json()["run_id"]

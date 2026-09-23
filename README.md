@@ -71,7 +71,7 @@ See `.env.example`. For optional OpenAI intelligence, set `LLM_PROVIDER=openai`,
 6. Tests: `make tests` (includes `test_temporal_guard.py`: proof of no lookahead).
 
 ## Compliance with "archived forecasts only"
-Lead-day rule `K = ceil((lead_h + 8)/24)` on Open-Meteo `*_previous_dayK` variables ensures every weather value was initialized early enough under the eight-hour publication-latency assumption. See `PROJECT_PLAN.md` §5.3, `ml/samal_ml/temporal_guard.py`, and the ledger's per-block `max_nwp_init_time_used`. The forecast API only displays a ledger proof when the block's payload hash matches that exact forecast; published payload files are immutable.
+Lead-day rule `K = ceil((lead_h + latency_h)/24)` on Open-Meteo `*_previous_dayK` variables ensures each selected offset satisfies the configured publication-latency assumption (8 hours by default). The Previous Runs API supplies fixed lead-time offsets, not exact public release timestamps for every model run; `max_nwp_init_time_used` is therefore an estimate. The ledger verifies that our selection rule was followed and forecast payloads were not changed, but it is not an independent proof of the source's publication time. See `PROJECT_PLAN.md` §5.3 and `ml/samal_ml/temporal_guard.py`. The forecast API only displays a ledger proof when the block's payload hash matches that exact forecast; published payload files are immutable.
 
 ## Third-party components, data & AI tools (rule 5.4.4)
 - Weather data by **Open-Meteo.com** (CC BY 4.0), models ECMWF IFS, NCEP GFS, DWD ICON via Open-Meteo.

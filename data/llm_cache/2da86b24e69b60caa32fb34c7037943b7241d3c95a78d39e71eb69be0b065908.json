@@ -1,0 +1,21 @@
+{
+  "request": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "schema": "CriticDecision"
+  },
+  "response": {
+    "approve": false,
+    "issues": [
+      "Multiple ramp-down and ramp-up warnings indicating instability in capacity management.",
+      "Model disagreement on hub-height wind suggests potential inaccuracies in forecasting."
+    ],
+    "suggestion": {
+      "action": "ESCALATE",
+      "variant": "raw_pc",
+      "widen": 0.1,
+      "rationale": "The presence of multiple warnings and model disagreements necessitates a thorough review and potential escalation to ensure reliability in operations."
+    }
+  },
+  "created_at": "2026-09-23T10:57:07.321224+00:00"
+}

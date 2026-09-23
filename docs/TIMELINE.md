@@ -5,20 +5,20 @@ Integration syncs (2-min stand-up, everyone): **14:55 · 15:55 · 16:55 · 17:35
 
 ## 13:40 → 14:00  Setup (commit #1 "docs+skeleton")
 - [ ] (all) Clone organizer repo (edu.astanahub.com) → copy this folder's content into it → `git add . && git commit -m "[docs] plan, contracts, agent instructions, mocks"` → push
-- [ ] (all) `cp .env.example .env`; B adds the API key locally (never commit)
+- [x] (all) `cp .env.example .env`; B adds the API key locally (never commit)
 - [x] (A) Put SCADA file(s) in `data/raw/`; run a quick pandas `head()`; tell B & C the real column names/time step
-- [ ] (B) FastAPI skeleton: `/api/health`, `/api/meta`, `/api/forecast` returning mocks via `ml_stub.py`
-- [ ] (C) Vite+React+TS+Tailwind scaffold, tabs layout, mocks copied to `public/mocks`
+- [x] (B) FastAPI skeleton: `/api/health`, `/api/meta`, `/api/forecast` returning mocks via `ml_stub.py`
+- [x] (C) Vite+React+TS+Tailwind scaffold, tabs layout, mocks copied to `public/mocks`
 
 ## 14:00 → 15:00  Foundations (commit #2)
 - A: [x] `data.py` hourly farm series + flags  [ ] tz lag check  [x] `weather.py` fetch all chunks → `data/cache/nwp/` **commit the cache**  [x] `temporal_guard.py` + test
-- B: [ ] `llm.py` (anthropic/openai/compatible/none + cache)  [ ] `ledger.py` + `test_ledger.py`  [ ] `runs.py` + SSE endpoint replaying mock events
-- C: [ ] `api/client.ts` + `types.ts` (mock mode)  [ ] Forecast page: FanChart + flags + briefing card + ledger badge
+- B: [x] `llm.py` (anthropic/openai/compatible/none + cache)  [x] `ledger.py` + `test_ledger.py`  [x] `runs.py` + SSE endpoint replaying mock events
+- C: [x] `api/client.ts` + `types.ts` (mock mode)  [x] Forecast page: FanChart + flags + briefing card + ledger badge
 
 ## 15:00 → 16:00  Core (commit #3)
 - A: [x] features (per-model, cross-model, physics)  [x] power curve (isotonic)  [x] MOS wind + quantile HGB  [x] `validate --mode val_feb2025` → metrics json (first numbers!)
-- B: [ ] orchestrator state machine with tools on stub  [ ] policy.py fallback  [ ] prompts (planner/decider/critic/briefing)  [ ] `/api/agent/run` + stream end-to-end
-- C: [ ] Agent Console timeline (SSE, mock replay)  [ ] Backtest page (KPI tiles, model bars, MAE-by-lead, heatmap)
+- B: [x] orchestrator state machine with tools on stub  [x] policy.py fallback  [x] prompts (planner/decider/critic/briefing)  [x] `/api/agent/run` + stream end-to-end
+- C: [x] Agent Console timeline (SSE, mock replay)  [x] Backtest page (KPI tiles, model bars, MAE-by-lead, heatmap)
 
 ## 16:00 → 17:00  Integration (commit #4)
 - A: [x] conformal widen  [x] baselines in metrics  [x] `test-run` → submission CSVs (672 rows)  [x] `api.py` complete → tell B "real ml ready"

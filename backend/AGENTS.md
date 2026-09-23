@@ -2,7 +2,7 @@
 
 Read first: `/PROJECT_PLAN.md` §6, `/docs/CONTRACTS.md` §1–§4. You implement the REST/SSE API **exactly** as in CONTRACTS §2–3.
 You consume `samal_ml.api` (CONTRACTS §1). Until Person A delivers, use `app/ml_stub.py` (reads `shared/mocks/`) behind
-the same function names; switch with env `USE_ML_STUB=1|0` (auto-fallback to stub if `import samal_ml` fails).
+the same function names; switch with env `USE_ML_STUB=1|0`. Real ML is the default, and an import failure must fail startup rather than silently serve sample data.
 
 ## Layout
 ```

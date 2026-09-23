@@ -20,7 +20,7 @@ def as_utc(value: object) -> pd.Timestamp:
 
 
 def lead_day(lead_h: int, latency_h: int = LATENCY_H) -> int:
-    """Choose the newest previous-run product provably available at issue time."""
+    """Choose the newest previous-run offset available under the latency assumption."""
     if lead_h < 1:
         raise ValueError("lead_h must be at least 1")
     return min(7, math.ceil((lead_h + latency_h) / 24))
@@ -46,7 +46,7 @@ class TemporalAudit:
 def assert_no_lookahead(
     rows: pd.DataFrame | Iterable[dict], issue_time: object, latency_h: int = LATENCY_H
 ) -> TemporalAudit:
-    """Raise when a selected previous-run forecast was unavailable at ``issue_time``.
+    """Raise when a selected offset violates assumed availability at ``issue_time``.
 
     Rows must contain ``target_time`` and ``lead_day``. This deliberately never
     accepts day 0 products, which can contain future information at short leads.
