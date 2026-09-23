@@ -1,0 +1,175 @@
+{
+  "request": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "schema": "Briefings"
+  },
+  "response": {
+    "en": {
+      "lang": "en",
+      "headline": "Energy Capacity Update",
+      "summary": "Forecast indicates significant ramping changes in energy capacity over the next 48 hours, with both ramp-downs and ramp-ups expected. Model disagreements on wind conditions may affect predictions.",
+      "risks": [
+        {
+          "code": "RAMP_DOWN",
+          "text": "Ramp-Down of 38% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Ramp-Down of 44% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Ramp-Down of 30% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Ramp-Up of 39% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Ramp-Down of 39% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Ramp-Up of 43% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Ramp-Up of 56% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Ramp-Up of 57% capacity within 3 h"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Ramp-Up of 45% capacity within 3 h"
+        },
+        {
+          "code": "MODEL_DISAGREEMENT",
+          "text": "Weather models disagree on hub-height wind"
+        }
+      ],
+      "actions": [
+        "Monitor capacity changes closely",
+        "Adjust operational strategies accordingly",
+        "Review weather model updates"
+      ],
+      "confidence": "medium",
+      "grounded": true,
+      "generated_by": "llm"
+    },
+    "ru": {
+      "lang": "ru",
+      "headline": "Обновление по энергетическим мощностям",
+      "summary": "Прогноз указывает на значительные изменения в мощности энергии в течение следующих 48 часов, ожидаются как снижение, так и увеличение мощностей. Разногласия в моделях по условиям ветра могут повлиять на прогнозы.",
+      "risks": [
+        {
+          "code": "RAMP_DOWN",
+          "text": "Снижение мощности на 38% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Снижение мощности на 44% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Снижение мощности на 30% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Увеличение мощности на 39% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "Снижение мощности на 39% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Увеличение мощности на 43% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Увеличение мощности на 56% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Увеличение мощности на 57% в течение 3 часов"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "Увеличение мощности на 45% в течение 3 часов"
+        },
+        {
+          "code": "MODEL_DISAGREEMENT",
+          "text": "Модели погоды расходятся в оценках ветра на высоте"
+        }
+      ],
+      "actions": [
+        "Тщательно следить за изменениями мощности",
+        "Корректировать операционные стратегии",
+        "Пересмотреть обновления моделей погоды"
+      ],
+      "confidence": "medium",
+      "grounded": true,
+      "generated_by": "llm"
+    },
+    "kk": {
+      "lang": "kk",
+      "headline": "Энергия қуатының жаңартылуы",
+      "summary": "Келесі 48 сағатта энергия қуатында елеулі өзгерістер күтілуде, қуаттың төмендеуі мен жоғарылауы болжануда. Жел жағдайлары бойынша модельдер арасындағы келіспеушіліктер болжамдарға әсер етуі мүмкін.",
+      "risks": [
+        {
+          "code": "RAMP_DOWN",
+          "text": "3 сағат ішінде қуаттың 38%-ға төмендеуі"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "3 сағат ішінде қуаттың 44%-ға төмендеуі"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "3 сағат ішінде қуаттың 30%-ға төмендеуі"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "3 сағат ішінде қуаттың 39%-ға жоғарылауы"
+        },
+        {
+          "code": "RAMP_DOWN",
+          "text": "3 сағат ішінде қуаттың 39%-ға төмендеуі"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "3 сағат ішінде қуаттың 43%-ға жоғарылауы"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "3 сағат ішінде қуаттың 56%-ға жоғарылауы"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "3 сағат ішінде қуаттың 57%-ға жоғарылауы"
+        },
+        {
+          "code": "RAMP_UP",
+          "text": "3 сағат ішінде қуаттың 45%-ға жоғарылауы"
+        },
+        {
+          "code": "MODEL_DISAGREEMENT",
+          "text": "Модельдер желдің биіктігі бойынша келіспейді"
+        }
+      ],
+      "actions": [
+        "Қуат өзгерістерін мұқият бақылау",
+        "Операциялық стратегияларды сәйкесінше түзету",
+        "Модельдер жаңартуларын қайта қарау"
+      ],
+      "confidence": "medium",
+      "grounded": true,
+      "generated_by": "llm"
+    }
+  },
+  "created_at": "2026-09-23T10:25:28.230601+00:00"
+}
