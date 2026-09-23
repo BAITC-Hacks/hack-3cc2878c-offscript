@@ -49,6 +49,12 @@ def _fit_hgb(**kwargs: object) -> HistGradientBoostingRegressor:
 
 def train_bundle(scada: pd.DataFrame, training: pd.DataFrame, train_end: object, mode: str) -> ModelBundle:
     """Fit a power curve, MOS wind correction, quantile models, and CQR margin."""
+    end = pd.Timestamp(train_end)
+    end = end.tz_localize("UTC") if end.tzinfo is None else end.tz_convert("UTC")
+    # The caller may have loaded all SCADA history; never let later observations
+    # influence either the empirical curve or the forecast model.
+    scada = scada.loc[scada.index <= end]
+    training = training.loc[pd.to_datetime(training["target_time"], utc=True) <= end]
     if training.empty:
         raise ValueError("no training rows: fetch the archived NWP cache before training")
     clean = training.loc[
@@ -78,8 +84,6 @@ def train_bundle(scada: pd.DataFrame, training: pd.DataFrame, train_end: object,
     validation_predictions = np.column_stack([quantiles[q].predict(calibration[feature_list]) for q in (0.1, 0.9)])
     errors = np.maximum(validation_predictions[:, 0] - calibration["y"], calibration["y"] - validation_predictions[:, 1])
     qhat = float(max(0.0, np.quantile(errors, min(1.0, 0.8 * (1 + 1 / len(errors))), method="higher")))
-    end = pd.Timestamp(train_end)
-    end = end.tz_localize("UTC") if end.tzinfo is None else end.tz_convert("UTC")
     return ModelBundle(
         power_curve=power_curve,
         mos=mos,

@@ -4,9 +4,10 @@ import numpy as np
 import pandas as pd
 
 from samal_ml.models import predict_bundle, train_bundle
+from samal_ml.power_curve import fit_power_curve, predict_power_curve
 
 
-def test_quantile_bundle_fit_and_predict_are_ordered() -> None:
+def _sample_frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DatetimeIndex]:
     rng = np.random.default_rng(7)
     times = pd.date_range("2024-03-20", periods=900, freq="h", tz="UTC")
     wind = np.clip(8 + 4 * np.sin(np.arange(len(times)) / 20), 0.2, None)
@@ -38,9 +39,43 @@ def test_quantile_bundle_fit_and_predict_are_ordered() -> None:
             "flag_icing_suspect": False,
         }
     )
+    return scada, training, times
+
+
+def test_quantile_bundle_fit_and_predict_are_ordered() -> None:
+    scada, training, times = _sample_frames()
     bundle = train_bundle(scada, training, times[-1], "unit")
     predicted = predict_bundle(bundle, training.drop(columns=["y", "wind_meas", "flag_missing", "flag_stuck", "flag_outage", "flag_icing_suspect"]).tail(48))
     assert len(predicted) == 48
     assert ((predicted["p10"] <= predicted["p50"]) & (predicted["p50"] <= predicted["p90"])).all()
     assert predicted[["p10", "p50", "p90"]].ge(0).all().all()
     assert predicted[["p10", "p50", "p90"]].le(1).all().all()
+
+
+def test_future_scada_cannot_change_fitted_power_curve() -> None:
+    scada, training, times = _sample_frames()
+    future = pd.DataFrame(
+        {
+            "wind_meas": 8.0,
+            "p": 0.0,
+            "temp_c": 5.0,
+            "flag_missing": False,
+            "flag_stuck": False,
+            "flag_outage": False,
+        },
+        index=pd.date_range(times[-1] + pd.Timedelta(hours=1), periods=300, freq="h", tz="UTC"),
+    )
+    contaminated = pd.concat([scada, future])
+    winds = np.array([4.0, 8.0, 12.0])
+    # Ensure these future observations are strong enough that the test would
+    # detect the original full-history power-curve leak.
+    assert np.max(np.abs(
+        predict_power_curve(fit_power_curve(scada), winds)
+        - predict_power_curve(fit_power_curve(contaminated), winds)
+    )) > 0.05
+    clean_bundle = train_bundle(scada, training, times[-1], "unit")
+    contaminated_bundle = train_bundle(contaminated, training, times[-1], "unit")
+    np.testing.assert_allclose(
+        predict_power_curve(clean_bundle.power_curve, winds),
+        predict_power_curve(contaminated_bundle.power_curve, winds),
+    )

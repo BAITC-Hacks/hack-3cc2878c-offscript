@@ -25,7 +25,7 @@ SUBMISSION_COLUMNS = (
 def train_for_mode(mode: api.Mode) -> Path:
     dates = api.list_issue_dates(mode)
     train_end = api._issue_timestamp(dates[0])
-    scada = load_scada()
+    scada = load_scada().loc[lambda frame: frame.index <= train_end]
     frame = build_training_frame(scada, load_nwp_cache(), train_end)
     bundle = train_bundle(scada, frame, train_end, mode)
     return save_bundle(bundle, mode)
