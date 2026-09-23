@@ -3,7 +3,7 @@
 
 SAMAL is an AI agent that produces **hourly probabilistic (P10/P50/P90) generation forecasts 24–48 h ahead** for a two-turbine wind farm
 in the Shelek corridor (Almaty region). It replays the February 2026 test period day by day, using **only weather forecasts that were
-already archived at each forecast moment**, checks its own output, writes dispatcher briefings in Kazakh, Russian and English, and seals
+already archived at each forecast moment**, checks its own output, writes dispatcher briefings in Kazakh, Russian, and English, and seals
 every published forecast in a tamper-evident hash-chained ledger.
 
 > **Быстрый запуск для технической комиссии (3 команды, нужен только Docker):**
