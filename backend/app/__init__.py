@@ -1,0 +1,1 @@
+"""SAMAL FastAPI service."""
