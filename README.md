@@ -14,7 +14,7 @@ every published forecast in a tamper-evident hash-chained ledger.
 > Откройте http://localhost:5173 (интерфейс) и http://localhost:8000/docs (API). Интернет, ключи API и обучение моделей не требуются:
 > архив прогнозов погоды, обученные модели и результаты уже находятся в репозитории. Проверка основного сценария описана в разделе 9.
 
-### README requirements checklist / Соответствие требованиям к README
+### README requirements checklist / Соответствие требованиям к README.
 
 | Требование (HackAlem AI) | Section |
 |---|---|
@@ -30,7 +30,7 @@ every published forecast in a tamper-evident hash-chained ledger.
 
 ---
 
-## 1. Описание решения / Solution and purpose
+## 1. Описание решения / Solution and purpose.
 
 **Problem.** Wind generation is variable. The grid operator and the farm need an hourly forecast for the next day, with an honest uncertainty
 range, so they can plan balancing reserves and limit imbalance costs.
