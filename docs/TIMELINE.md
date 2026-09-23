@@ -34,7 +34,7 @@ Integration syncs (2-min stand-up, everyone): **14:55 · 15:55 · 16:55 · 17:35
 
 ## 17:40 → 18:00  FREEZE
 - [ ] No new features. Only fixes for README/launch.
-- [ ] Final commit + push **before 17:55**: `[release] v1.0 SAMAL: ledger head <hash>` (put ledger head hash in the message = external timestamp anchor)
+- [ ] Final commit + push **before 17:55**: `[release] v1.0 OpenWind: ledger head <hash>` (put ledger head hash in the message = external timestamp anchor)
 - [ ] Confirm on GitHub web UI that the last commit is visible.
 
 ## If behind schedule (cut in this order)

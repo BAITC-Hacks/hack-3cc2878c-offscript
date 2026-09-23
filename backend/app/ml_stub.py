@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from samal_ml.temporal_guard import availability_policy_metadata
+from openwind_ml.temporal_guard import availability_policy_metadata
 
 from .settings import settings
 

@@ -153,5 +153,5 @@ def save_bundle(bundle: ModelBundle, mode: str, path: Path | None = None) -> Pat
 def load_bundle(mode: str, path: Path | None = None) -> ModelBundle:
     source = path or PATHS.models / f"{mode}.joblib"
     if not source.exists():
-        raise FileNotFoundError(f"model bundle not found: {source}. Run `python -m samal_ml.cli train --mode {mode}` first.")
+        raise FileNotFoundError(f"model bundle not found: {source}. Run `python -m openwind_ml.cli train --mode {mode}` first.")
     return joblib.load(source)

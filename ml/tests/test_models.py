@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from samal_ml.models import predict_bundle, train_bundle
-from samal_ml.power_curve import fit_power_curve, predict_power_curve
+from openwind_ml.models import predict_bundle, train_bundle
+from openwind_ml.power_curve import fit_power_curve, predict_power_curve
 
 
 def _sample_frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DatetimeIndex]:

@@ -1,14 +1,14 @@
-# ml/AGENTS.md: Person A (ML engineer): the forecasting engine `samal_ml`
+# ml/AGENTS.md: Person A (ML engineer): the forecasting engine `openwind_ml`
 
-Read first: `/PROJECT_PLAN.md` §3 and §5, `/docs/CONTRACTS.md` §1, §4, §5. Your public surface is **only** `samal_ml/api.py`.
+Read first: `/PROJECT_PLAN.md` §3 and §5, `/docs/CONTRACTS.md` §1, §4, §5. Your public surface is **only** `openwind_ml/api.py`.
 Everything must work offline once `data/cache/` is filled (`WEATHER_OFFLINE=1`).
 
 ## Package layout (create exactly this)
 ```
 ml/
   requirements.txt        pandas==2.2.* numpy==1.26.* scikit-learn==1.5.* requests==2.32.* joblib python-dotenv pytest pyarrow(optional)
-  pyproject.toml          name = "samal_ml" (so backend can `pip install -e ml`)
-  samal_ml/
+  pyproject.toml          name = "openwind_ml" (so backend can `pip install -e ml`)
+  openwind_ml/
     __init__.py
     config.py             env + constants + PATHS + COLUMN_MAP for SCADA + thresholds
     data.py               load_scada() → hourly UTC farm frame with flags; tz check
@@ -22,7 +22,7 @@ ml/
     metrics.py            nmae, nrmse, bias, skill, pinball, picp, mae_by_lead, daily
     risk.py               risk_scan(forecast) (thresholds in config)
     api.py                CONTRACTS §1 functions (thin wrappers)
-    cli.py                python -m samal_ml.cli {inspect|fetch|train|validate|test-run|evaluate|live}
+    cli.py                python -m openwind_ml.cli {inspect|fetch|train|validate|test-run|evaluate|live}
   tests/
     test_temporal_guard.py   ← MUST exist (configured offset-policy boundary checks)
     test_api_shapes.py       ← outputs match CONTRACTS
@@ -111,7 +111,7 @@ qm = {q: HistGradientBoostingRegressor(loss="quantile", quantile=q, max_iter=500
 ### 7. api.py (≤ 20 min): thin wrappers, JSON-serializable, cached model bundles (load once).
 
 ## Definition of done (A)
-- [ ] `python -m samal_ml.cli fetch` fills cache; `WEATHER_OFFLINE=1 python -m samal_ml.cli test-run` works from cache only
+- [ ] `python -m openwind_ml.cli fetch` fills cache; `WEATHER_OFFLINE=1 python -m openwind_ml.cli test-run` works from cache only
 - [ ] `pytest ml/tests` green (temporal guard + shapes)
 - [ ] `metrics/val_feb2025.json` shows hybrid beats persistence & raw_pc on day-ahead leads (if not, report honestly + explain)
 - [ ] submission CSV with 672 rows (28 days × 24 h), no NaN, p10 ≤ p50 ≤ p90, all in [0,1]

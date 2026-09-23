@@ -1,9 +1,8 @@
-# SAMAL: Self-Auditing Multi-model Agentic Loop for wind-farm power forecasting
+# OpenWind: agentic wind-farm power forecasting
 **HackAlem AI 2026 · Case: Agentic AI for Wind Farm Generation Forecasting (ВЭС).**
 
-SAMAL is an AI agent that produces **hourly probabilistic (P10/P50/P90) generation forecasts 24–48 h ahead** for a two-turbine wind farm
-in the Shelek corridor (Almaty region). It replays the February 2026 test period day by day, using **only weather forecasts that were
-already archived at each forecast moment**, checks its own output, writes dispatcher briefings in Kazakh, Russian and English, and seals
+OpenWind is an AI agent that produces **hourly probabilistic (P10/P50/P90) generation forecasts 24–48 h ahead** for a two-turbine wind farm
+in the Shelek corridor (Almaty region). It replays the February 2026 test period day by day, selecting **archived forecast offsets under a documented availability assumption** (provider release times are not verified), checks its own output, writes dispatcher briefings in Kazakh, Russian and English, and seals
 every published forecast in a tamper-evident hash-chained ledger.
 
 > **Быстрый запуск для технической комиссии (3 команды, нужен только Docker):**
@@ -36,8 +35,10 @@ every published forecast in a tamper-evident hash-chained ledger.
 **Problem.** Wind generation is variable. The grid operator and the farm need an hourly forecast for the next day, with an honest uncertainty
 range, so they can plan balancing reserves and limit imbalance costs.
 
-**What SAMAL does.** It forecasts the normalized output (0–1 of farm capacity) of the two-turbine farm (turbine coordinates 43.64515 N,
+**What OpenWind does.** It forecasts the normalized output (0–1 of farm capacity) of the two-turbine farm (turbine coordinates 43.64515 N,
 78.53560 E and 43.64320 N, 78.53883 E; farm point used for weather 43.6442 N, 78.5372 E):
+
+The source column is **normalized active power on the line side**. Charts multiply that 0–1 quantity by 100: **100% means full assumed farm capacity**, not forecast confidence or a probability. P10/P50/P90 are power quantiles on the same scale; MW/MWh use the configurable 5 MW capacity assumption.
 
 - **Forecast issues.** One forecast is issued at 00:00 local time (Asia/Almaty, UTC+5) on every day from 31 Jan to 27 Feb 2026, which is 28 issues.
 - **Horizon.** Each issue covers the next 48 hours at hourly resolution. Leads 24–47 h are the **day-ahead product**, so the 28 issues cover every hour of 1–28 Feb 2026 (672 hours).
@@ -49,8 +50,8 @@ range, so they can plan balancing reserves and limit imbalance costs.
 
 | Case requirement | Implementation | Where / how to check |
 |---|---|---|
-| Model built on the provided history (Mar 2023 – Jan 2026) | SCADA cleaning (UTC+6→UTC+5 clock change on 1 Mar 2024, hourly averaging, outage/stuck/icing flags) → empirical power curve (isotonic) → MOS wind correction → quantile gradient boosting → availability correction → conformal calibration of P10–P90 | `ml/samal_ml/data.py`, `models.py`, `power_curve.py` |
-| Weather forecasts from open sources, by the farm coordinates, as available at the forecast moment | Open-Meteo Previous Runs API, three NWP models; `previous_dayK` offsets chosen by the TemporalGuard rule; downloaded archive committed to `data/cache/nwp/` | `ml/samal_ml/weather.py`, `temporal_guard.py`; `make fetch` |
+| Model built on the provided history (Mar 2023 – Jan 2026) | SCADA cleaning (UTC+6→UTC+5 clock change on 1 Mar 2024, hourly averaging, outage/stuck/icing flags) → empirical power curve (isotonic) → MOS wind correction → quantile gradient boosting → availability correction → conformal calibration of P10–P90 | `ml/openwind_ml/data.py`, `models.py`, `power_curve.py` |
+| Weather forecasts from open sources, by the farm coordinates, as available at the forecast moment | Open-Meteo Previous Runs API, three NWP models; `previous_dayK` offsets chosen by the TemporalGuard rule; downloaded archive committed to `data/cache/nwp/` | `ml/openwind_ml/weather.py`, `temporal_guard.py`; `make fetch` |
 | Hourly forecast for the next 24–48 h | 48 hourly rows per issue; day-ahead product = leads 24–47 | `data/outputs/submission/forecast_feb2026_dayahead.csv` (672 rows) |
 | Agentic cycle: retrieve weather → prepare data → run model → hourly forecast → analyze → recalculate on new input | Orchestrator stages `PLAN → FETCH → QC → PREDICT → ANALYZE → DECIDE → CRITIC → RECALC → BRIEF → PUBLISH`, streamed live to the UI | `backend/app/agent/orchestrator.py`; UI tab *Agent console* |
 | Replay as if in the past: 31 Jan → forecast, 1 Feb → new forecast, … through February | 28 sequential issues, each built only from data available at its issue time | `make test-run`, `make demo`; `data/outputs/forecasts/test/` |
@@ -61,19 +62,21 @@ range, so they can plan balancing reserves and limit imbalance costs.
 Each validation model is trained only on data before the first issue of its period (SCADA after that point is removed before any fitting),
 then replayed issue by issue exactly like the test period.
 
-The SAMAL hybrid median is a fixed 50/50 blend of the quantile model and the MOS power curve. It is multiplied by an **availability factor**:
+The OpenWind hybrid median is a fixed 50/50 blend of the quantile model and the MOS power curve. It is multiplied by an **availability factor**:
 the share of hours in the 56-day calibration window before training ends in which the farm produced without outage, stuck-sensor or missing-data
 flags. Before this correction the hybrid over-forecast by about 8–9 percentage points of capacity, because real output includes downtime. The
 correction brought the hybrid bias down to +2.1 pp (Feb 2025) and +1.2 pp (winter).
 
+Winter P10–P90 coverage is near its 80% target; February 2025 over-covers at 92.95%, a remaining calibration limitation.
+
 | Held-out period | Hours | Model | NMAE | Bias | Skill vs persistence | P10–P90 coverage (target 80%) |
 |---|---:|---|---:|---:|---:|---:|
-| Feb 2025 (seasonal twin) | 667 | **SAMAL hybrid** | **20.29%** | +2.13 pp | +51.56% | 92.95% |
+| Feb 2025 (seasonal twin) | 667 | **OpenWind hybrid** | **20.29%** | +2.13 pp | +51.56% | 92.95% |
 |  |  | MOS wind + power curve | 21.27% | +8.41 pp | +49.22% | 66.57% |
 |  |  | Raw NWP wind + power curve | 21.48% | +8.58 pp | +48.73% | 65.67% |
 |  |  | Climatology (month × hour) | 31.83% | +7.87 pp | +24.01% | 18.74% |
 |  |  | Persistence (last observed power) | 41.89% | +1.28 pp | +0.00% | 28.79% |
-| Winter 2025–26 (Nov–Jan) | 2,208 | **SAMAL hybrid** | **18.08%** | +1.25 pp | +51.90% | 79.62% |
+| Winter 2025–26 (Nov–Jan) | 2,208 | **OpenWind hybrid** | **18.08%** | +1.25 pp | +51.90% | 79.62% |
 |  |  | MOS wind + power curve | 18.12% | +6.76 pp | +51.78% | 52.45% |
 |  |  | Raw NWP wind + power curve | 19.55% | +8.89 pp | +47.98% | 51.13% |
 |  |  | Climatology (month × hour) | 33.15% | +5.19 pp | +11.80% | 16.80% |
@@ -98,7 +101,7 @@ flowchart LR
   S --> CL["SCADA cleaning<br/>UTC, hourly, quality flags"]
   TG --> FE["Feature builder<br/>hub wind, air density, spread"]
   CL --> ML
-  FE --> ML["ML engine (samal_ml)<br/>power curve · MOS · quantile GBM<br/>availability correction · conformal P10–P90"]
+  FE --> ML["ML engine (openwind_ml)<br/>power curve · MOS · quantile GBM<br/>availability correction · conformal P10–P90"]
   subgraph AGENT["Agent orchestrator (backend)"]
     PL["Planner<br/>LLM or rules"] --> TO["Tools<br/>fetch → QC → forecast → risk scan"]
     TO --> DE["Decider<br/>LLM or rules"]
@@ -116,7 +119,7 @@ flowchart LR
 
 | Folder | Role |
 |---|---|
-| `ml/samal_ml/` | Forecasting engine (Python package): SCADA loading and cleaning (`data.py`), archived weather retrieval and cache (`weather.py`), no-lookahead rule (`temporal_guard.py`), features (`features.py`), models (`models.py`, `power_curve.py`), baselines, risk flags (`risk.py`), metrics, backtest/replay and submission writer (`backtest.py`), CLI (`cli.py`), stable JSON API for the backend (`api.py`) |
+| `ml/openwind_ml/` | Forecasting engine (Python package): SCADA loading and cleaning (`data.py`), archived weather retrieval and cache (`weather.py`), no-lookahead rule (`temporal_guard.py`), features (`features.py`), models (`models.py`, `power_curve.py`), baselines, risk flags (`risk.py`), metrics, backtest/replay and submission writer (`backtest.py`), CLI (`cli.py`), stable JSON API for the backend (`api.py`) |
 | `backend/app/` | FastAPI service: agent orchestrator (`agent/orchestrator.py`), rule-based policy (`agent/policy.py`), provider-neutral LLM adapter with structured JSON output and a response cache (`agent/llm.py`), briefing grounding check (`agent/briefing.py`), ledger (`ledger.py`), REST/SSE routers (`routers/`), batch replay (`batch.py`) |
 | `frontend/src/` | React control room with 5 tabs: *Forecast*, *Agent console*, *Backtest & skill*, *Ledger*, *Economics* |
 | `data/` | `raw/` organizer SCADA · `cache/nwp/` archived weather (27 files: 3 models × 9 date chunks) · `models/` trained bundles · `outputs/` forecasts, metrics, submission CSVs, agent runs, ledger payloads · `ledger/` hash chain · `llm_cache/` recorded LLM responses |
@@ -126,7 +129,7 @@ flowchart LR
 **Agent cycle (one issue).** The frontend calls `POST /api/agent/run`, then streams progress from `GET /api/agent/stream/{run_id}` (SSE):
 
 1. `PLAN`: the planner chooses the weather models and the model variant.
-2. `FETCH`: archived NWP is loaded through TemporalGuard, which records the latest weather-run time used.
+2. `FETCH`: archived NWP is loaded through TemporalGuard, which records an **offset-derived estimated** weather-run time, not a provider-verified timestamp.
 3. `QC`: input coverage and model-disagreement checks.
 4. `PREDICT`: the ML engine computes 48 hourly P10/P50/P90 values.
 5. `ANALYZE`: the risk scan flags ramps, low confidence, model disagreement, cut-out and icing.
@@ -209,7 +212,7 @@ cd hack-3cc2878c-offscript
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements.txt    # also installs ml/requirements.txt
-pip install -e ml                          # the samal_ml forecasting package
+pip install -e ml                          # install the forecasting Python package
 
 # 3. Frontend packages (Node.js 20)
 cd frontend && npm ci && cd ..
@@ -236,7 +239,7 @@ and local runs load it automatically. The defaults need no changes.
 | `WEATHER_OFFLINE` | `1` | `0` / `1` | `1` = use the committed weather archive (Docker Compose always sets `1`). `0` allows `make fetch` to download missing archive chunks from Open-Meteo. |
 | `NWP_LATENCY_H` | `8` | integer hours | Assumed publication delay of a weather-model run, used by the TemporalGuard rule. If you change it, retrain (`make validate`, `make test-run`). |
 | `FARM_CAPACITY_MW` | `5.0` | number | Assumed farm capacity, used only to convert normalized power to MW/MWh for display and economics. |
-| `HUB_HEIGHT_M` | `100` | number | Informational only; the model uses a fixed 100 m hub height (`ml/samal_ml/config.py`). |
+| `HUB_HEIGHT_M` | `100` | number | Informational only; the model uses a fixed 100 m hub height (`ml/openwind_ml/config.py`). |
 | `DEMO_PACING` | `0` | `0` / `1` | `1` adds short pauses between agent stages so the live trace is easy to follow during a presentation. |
 | `USE_ML_STUB` | `0` | `0` / `1` | `1` serves fixture data instead of the real ML engine (frontend development only). Keep `0`. |
 | `NWP_WATCH_ENABLED` | `0` | `0` / `1` | Start an opt-in background poller for selected cached NWP inputs. No API key or external fetch is required. |
@@ -277,19 +280,19 @@ Stop with `Ctrl+C`, or `docker compose down`.
 ### Option B: local (two terminals, from the repository root)
 
 ```bash
-# Terminal 1: API
+# Terminal 1: API (run from the repository root)
 source .venv/bin/activate
-cd backend && PYTHONPATH=.:../ml uvicorn app.main:app --port 8000        # or: make api
+cd backend && PYTHONPATH=.:../ml uvicorn app.main:app --port 8000
 
-# Terminal 2: UI
-cd frontend && npm run dev -- --port 5173                                # or: make web
+# Terminal 2: UI (run from the repository root)
+cd frontend && npm run dev -- --port 5173
 ```
 
 ### Reproducing the forecasting pipeline (optional; results are already in the repository)
 
 The `make` targets are for the local option and run from the repository root with the virtual environment active. With Docker, run
-the same steps inside the backend container, for example `docker compose exec backend python -m samal_ml.cli validate --mode val_feb2025`,
-`docker compose exec backend python -m samal_ml.cli test-run`, `docker compose exec backend python -m app.batch --mode test`.
+the same steps inside the backend container, for example `docker compose exec backend python -m openwind_ml.cli validate --mode val_feb2025`,
+`docker compose exec backend python -m openwind_ml.cli test-run`, `docker compose exec backend python -m app.batch --mode test`.
 
 | Command | What it does | Output |
 |---|---|---|
@@ -297,10 +300,9 @@ the same steps inside the backend container, for example `docker compose exec ba
 | `make test-run` | Trains on all data up to 30 Jan 2026 and replays the 28 February issues | `data/models/test.joblib`, `data/outputs/submission/forecast_feb2026_dayahead.csv`, `forecast_feb2026_all_issues.csv` |
 | `make demo` | Runs the agent (deterministic mode) over all 28 test issues and appends them to the ledger | `data/ledger/ledger.jsonl`, `data/outputs/agent_runs/` |
 | `make tests` | Runs the ML and backend test suites | pytest summary |
-| `WEATHER_OFFLINE=0 make fetch` | Downloads the archived weather from Open-Meteo (needs internet). Existing cache files are kept; delete `data/cache/nwp/*` to force a full re-download. | `data/cache/nwp/*.csv.gz` |
+| `WEATHER_OFFLINE=0 make fetch` | Downloads missing archived weather chunks from Open-Meteo (needs internet); existing committed chunks remain unchanged. | `data/cache/nwp/*.csv.gz` |
 
-Agent runs and `make demo` append to `data/ledger/ledger.jsonl` in your checkout (Docker mounts `./data`). To return to the committed state:
-`git checkout -- data/`.
+Agent runs and `make demo` append to `data/ledger/ledger.jsonl` in your checkout (Docker mounts `./data`). For repeatable judging, use a fresh clone or copy `data/` before a new batch; preserve audit records you want to keep.
 
 ---
 
@@ -331,7 +333,8 @@ Start the project (section 7), then follow the steps. Expected results are shown
    (`ml_stub:false` means the real ML engine is serving forecasts.)
 
 2. **Forecast tab** (http://localhost:5173): choose *Issue date* **2026-02-15** (use *Earlier* / *Later*). Expected:
-   - a 48-hour fan chart with P10–P90 band and P50 line;
+- a 48-hour fan chart with P10–P90 band and P50 line;
+- the chart's left-axis percentages labelled as **normalized farm power (% of assumed installed capacity)**, not forecast probability;
    - the day-ahead window (leads 24–47 h) highlighted in the hourly table;
    - risk flags and the dispatcher briefing (EN / RU / KZ tabs);
    - the ledger badge **"Sealed in block #N"**, and the *Model variant* selector for comparing baselines.
@@ -373,7 +376,7 @@ Start the project (section 7), then follow the steps. Expected results are shown
 ---
 
 ## Compliance with "archived forecasts only"
-For a target hour at lead `lead_h` after the issue time, SAMAL uses only the Open-Meteo offset `*_previous_dayK` with
+For a target hour at lead `lead_h` after the issue time, OpenWind uses only the Open-Meteo offset `*_previous_dayK` with
 `K = ceil((lead_h + 8) / 24)`. According to the [Open-Meteo Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), `previous_day1` is a value predicted 24 hours before valid
 time, `previous_day2` 48 hours before, and so on. The 8-hour margin is a configured assumption, not an observed publication delay;
 the check cannot prove that a particular provider run was actually released by the issue time. `previous_day0` (the live run) is never used.
@@ -385,12 +388,13 @@ recorded policy arithmetic and labels older anchored blocks as `legacy_policy_ev
 
 Each NWP cache chunk has a sidecar manifest with its request, artifact hash, policy version, and explicit unavailable-release status.
 Historical chunks have `retrieved_at:null` because their original HTTP retrieval time and headers were not preserved; their request URLs are reconstructed from the filename and current fetch configuration and are explicitly marked as such.
-For exact run-level initialization data, Open-Meteo directs users to its [Single Runs API](https://open-meteo.com/en/docs/single-runs-api), whose historical model coverage differs from this cache. See `PROJECT_PLAN.md` §5.3 and `ml/samal_ml/temporal_guard.py`.
+For exact run-level initialization data, Open-Meteo directs users to its [Single Runs API](https://open-meteo.com/en/docs/single-runs-api), whose historical model coverage differs from this cache. See `PROJECT_PLAN.md` §5.3 and `ml/openwind_ml/temporal_guard.py`.
 
 ## Limitations
 - The system replays a historical period. `GET /api/live/tomorrow` is intentionally disabled (HTTP 501).
 - The agent's `FETCH` step reads the committed weather archive, so the replay is reproducible offline. New archive data is downloaded with `make fetch`.
 - The ledger detects changes to anchored forecast rows (and, for new blocks, the full saved forecast file) and records whether the configured offset policy was followed. Older anchored blocks retain row-only hash coverage. It cannot independently prove provider publication time or when a replayed forecast was created.
+- Pre-rename audit records remain byte-for-byte unchanged to preserve their existing hashes. Their historical labels may still appear in raw archived JSON; current application branding, source package, and newly generated records use OpenWind.
 - Farm capacity (5 MW) and imbalance prices on the *Economics* tab are illustrative assumptions.
 - February 2026 actual generation was not provided, so test-period accuracy cannot be measured.
 
@@ -402,7 +406,7 @@ For exact run-level initialization data, Open-Meteo directs users to its [Single
 | UI header shows **API offline** | Check `curl http://localhost:8000/api/health`. If the UI is opened from a different computer than the one running Docker, set `VITE_API_URL` in `docker-compose.yml` to `http://<server-ip>:8000` and run `docker compose up --build` again. |
 | `ImportError: cannot import name 'UTC' from 'datetime'` | Python is older than 3.11. Create the virtual environment with Python 3.11+. |
 | `npm run dev` fails on Windows (`cp`/`mkdir -p`) | Use Docker, WSL2 or Git Bash on Windows. |
-| Ledger shows many new blocks after testing | Expected: runs append to the chain. `git checkout -- data/` restores the committed state. |
+| Ledger shows many new blocks after testing | Expected: runs append to the chain. Use a fresh clone to inspect the submitted baseline; preserve the changed `data/` directory if the new audit records matter. |
 
 ## Third-party components, data & AI tools (rule 5.4.4)
 - Weather data by **Open-Meteo.com** (CC BY 4.0): ECMWF IFS, NCEP GFS, DWD ICON via the Open-Meteo Previous Runs API.

@@ -1,6 +1,6 @@
-# SAMAL — Self-Auditing Multi-model Agentic Loop
+# OpenWind — Agentic Wind Forecasting Control Room
 ### HackAlem AI 2026 · Task: "Agentic AI for Wind Farm (ВЭС) Generation Forecasting"
-*"Samal" (самал) = "breeze" in Kazakh.*
+*Project name: OpenWind.*
 
 > **This is the master document.** Every teammate (and every AI coding agent — Claude Code, Codex, Cursor)
 > must read this file first, then `AGENTS.md`, then the `AGENTS.md` inside their own folder.
@@ -11,7 +11,7 @@
 
 ## 0. TL;DR (30-second pitch)
 
-SAMAL is an **autonomous AI agent that forecasts hourly wind-farm output 24–48 h ahead** for the two-turbine
+OpenWind is an **autonomous AI agent that forecasts hourly wind-farm output 24–48 h ahead** for the two-turbine
 wind farm in the **Shelek wind corridor (Almaty region, 43.645°N 78.536°E)**. It:
 
 1. **Uses fixed lead-time-offset forecasts from three weather models** (ECMWF, GFS and ICON, via Open-Meteo's *Previous Runs API*). The API does not expose exact provider publication timestamps; archived offsets are selected under a configured latency assumption.
@@ -30,10 +30,10 @@ power can be integrated into the grid. The approach works for any wind or solar 
 
 Original text: `docs/TASK_ORIGINAL.md`. Requirement → feature mapping:
 
-| # | Organizer requirement | SAMAL feature | Owner |
+| # | Organizer requirement | OpenWind feature | Owner |
 |---|---|---|---|
 | R1 | Build a model of hourly WF generation from the provided history (Mar 2023 – 31 Jan 2026) | `ml/` two-stage physics-informed quantile model (MOS wind correction + empirical power curve + gradient boosting quantiles) | A |
-| R2 | **Independently** fetch weather forecasts from open sources by WF coordinates, **as available at forecast time** | `ml/samal_ml/weather.py` (Open-Meteo Previous Runs API, 3+ models) + `temporal_guard.py` (lead-day selection rule, see §5.3) | A |
+| R2 | **Independently** fetch weather forecasts from open sources by WF coordinates, **as available at forecast time** | `ml/openwind_ml/weather.py` (Open-Meteo Previous Runs API, 3+ models) + `temporal_guard.py` (lead-day selection rule, see §5.3) | A |
 | R3 | Forecast next 24–48 h, hourly | Each issue produces 48 hourly values (lead 1–48 h); the official day-ahead product is lead 24–47 h | A |
 | R4 | Agentic cycle: fetch weather → prepare → run model → hourly forecast → analyze → **recalculate on input update** | `backend/app/agent/` state-machine agent with LLM planner + tools + Critic + recalc policy, streamed live to the UI | B |
 | R5 | Replay as if in the past: 31 Jan → forecast; 1 Feb → new forecast; … through 28 Feb | `make test-run` loops issue dates 2026-01-31 … 2026-02-27 (28 issues, covering 1–28 Feb day-ahead) and writes `data/outputs/submission/*.csv` | A (+B for agent mode) |
@@ -48,7 +48,7 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 
 ## 2. Why we win (differentiators — say these out loud at the demo)
 
-| Typical team | SAMAL |
+| Typical team | OpenWind |
 |---|---|
 | One weather source, often *actual* (reanalysis) weather, so leakage | **3+ numerical weather prediction (NWP) models**, archived fixed-offset forecasts, with a unit-tested configured availability rule and explicit release-time uncertainty |
 | Single number forecast | **Probabilistic P10/P50/P90** with conformal calibration; report measured validation coverage rather than guaranteeing it |
@@ -101,7 +101,7 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 │  LLM adapter: anthropic | openai | openai-compatible | none (rule-based)   + response cache (deterministic replay)       │
 │  Ledger: SHA-256 hash chain, temporal invariants, verify + tamper demo                                                  │
 └───────────────▲─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-                │ Python import (ml is a package: `samal_ml`)
+                │ Python import (ml is a package: `openwind_ml`)
 ┌───────────────┴──────────────────── ml/ (pandas, numpy, scikit-learn) ─────────────────────────────────────────────────┐
 │ data.py (SCADA load/clean/resample/tz) · weather.py (Open-Meteo fetch + cache) · temporal_guard.py (no-lookahead)      │
 │ features.py · power_curve.py · models.py (MOS + quantile HGB + conformal) · baselines.py · backtest.py · metrics.py      │
@@ -116,7 +116,7 @@ Demo Day (finals, 100): value 25 · result quality 20 · innovation 15 · scalin
 
 ### 5.1 Data
 - SCADA columns (per organizers): statistical time; average wind speed (m/s); normalized active power (line side); average ambient temperature (°C).
-  Probably per turbine; maybe 10-minute resolution. **First 15 min: open the file, map columns in `ml/samal_ml/config.py`.**
+  Probably per turbine; maybe 10-minute resolution. **First 15 min: open the file, map columns in `ml/openwind_ml/config.py`.**
 - Resample to **hourly mean** (label = hour ending or hour beginning; pick one, document it and use it everywhere. Default: *hour-beginning, UTC*).
 - Farm target `p` = mean normalized power of available turbines (0..1). Keep per-turbine series for diagnostics.
 
@@ -256,11 +256,11 @@ Frontend works from `shared/mocks/*.json` **before** the backend exists (env `VI
 
 | Person | Folder | Mission | Hard deliverables |
 |---|---|---|---|
-| **A: ML** | `ml/` | Data + weather + TemporalGuard + models + validation + submission | `samal_ml` package, cached NWP in `data/cache`, metrics json, submission csv, `test_no_lookahead` |
+| **A: ML** | `ml/` | Data + weather + TemporalGuard + models + validation + submission | `openwind_ml` package, cached NWP in `data/cache`, metrics json, submission csv, `test_no_lookahead` |
 | **B: Backend/Agent** | `backend/` | FastAPI, agent loop, LLM adapter, ledger, SSE | All endpoints from CONTRACTS, rule-based fallback, llm cache, ledger verify/tamper |
 | **C: Frontend/Story** | `frontend/` + `README.md` + `docs/DEMO_SCRIPT.md` | Dashboard, demo, README, slides | 5 tabs, docker build, final README, 5–7 slide deck, rehearsed 3-min demo |
 
-Interfaces: **A→B** Python functions in `ml/samal_ml/api.py` (signatures in CONTRACTS §1). **B→C** REST/SSE (CONTRACTS §2–3).
+Interfaces: **A→B** Python functions in `ml/openwind_ml/api.py` (signatures in CONTRACTS §1). **B→C** REST/SSE (CONTRACTS §2–3).
 Until an interface is real, the consumer uses the stub/mock with the exact same shape.
 
 ---

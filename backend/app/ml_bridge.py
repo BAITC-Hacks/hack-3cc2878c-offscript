@@ -7,5 +7,5 @@ if settings.use_ml_stub:
     from . import ml_stub as ml
     USING_STUB = True
 else:
-    from samal_ml import api as ml
+    from openwind_ml import api as ml
     USING_STUB = False

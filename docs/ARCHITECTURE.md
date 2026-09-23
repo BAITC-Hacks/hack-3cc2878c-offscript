@@ -8,7 +8,7 @@ sequenceDiagram
   participant O as Orchestrator
   participant L as LLM (planner/decider)
   participant C as Critic LLM
-  participant ML as samal_ml
+  participant ML as openwind_ml
   participant LG as Ledger
   UI->>API: POST /api/agent/run {issue_date}
   API-->>UI: run_id  (then UI opens SSE /api/agent/stream/run_id)

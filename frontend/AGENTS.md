@@ -23,7 +23,7 @@ public/mocks/          copy of /shared/mocks (script: "predev": "cp -r ../shared
 
 ## Pages & exact visuals
 1. **Forecast** (hero)
-   - Header: "SAMAL: Shelek wind farm · Agentic 48-h forecast", mode switch *Test Feb 2026 / Validation Feb 2025*, issue-date slider.
+   - Header: "OpenWind: Shelek wind farm · Agentic 48-h forecast", mode switch *Test Feb 2026 / Validation Feb 2025*, issue-date slider.
    - **FanChart** (Recharts `ComposedChart`): x = local time; `Area` dataKey={d => [d.p10, d.p90]} (band, 25% opacity), `Line` p50 (thick),
      dashed thin `Line`s per NWP model = `pc(nwp_v_hub[m])` if provided (or v_hub on right axis), `Line` actual (white dots) in validation mode,
      `ReferenceArea` for flag intervals, vertical `ReferenceLine` at lead 24 labelled "Day-ahead window →".

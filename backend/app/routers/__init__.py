@@ -1,1 +1,1 @@
-"""REST routers for the SAMAL API."""
+"""REST routers for the OpenWind API."""

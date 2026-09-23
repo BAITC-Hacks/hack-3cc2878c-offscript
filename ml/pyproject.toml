@@ -3,12 +3,12 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "samal_ml"
+name = "openwind_ml"
 version = "0.1.0"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [tool.setuptools.packages.find]
-include = ["samal_ml*"]
+include = ["openwind_ml*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["../backend"]

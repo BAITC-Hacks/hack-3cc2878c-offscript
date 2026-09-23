@@ -4,9 +4,9 @@ import gzip
 import hashlib
 import json
 
-from samal_ml.config import ProjectPaths
-from samal_ml.temporal_guard import AVAILABILITY_POLICY_VERSION
-from samal_ml import weather
+from openwind_ml.config import ProjectPaths
+from openwind_ml.temporal_guard import AVAILABILITY_POLICY_VERSION
+from openwind_ml import weather
 
 
 def test_legacy_cache_manifest_records_missing_retrieval_evidence(tmp_path, monkeypatch) -> None:

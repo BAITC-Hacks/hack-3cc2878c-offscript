@@ -1,6 +1,6 @@
 # START HERE: team quick-start (read in 2 minutes)
 
-**Chosen task:** Agentic AI for Wind Farm (ВЭС) generation forecasting. **Project:** SAMAL. **Deadline:** 18:00, commit every hour.
+**Chosen task:** Agentic AI for Wind Farm (ВЭС) generation forecasting. **Project:** OpenWind. **Deadline:** 18:00, commit every hour.
 
 1. Clone the organizer GitHub repo; copy everything from this folder into it; commit + push (`[docs] plan & skeleton`).
 2. `cp .env.example .env` (B puts the API key in `.env`, never commit it).
@@ -11,10 +11,10 @@
 ## Kickoff prompt: Person A (ML) → paste into Claude Code / Codex
 ```
 Read AGENTS.md, PROJECT_PLAN.md (§3, §5), docs/CONTRACTS.md (§1, §4, §5) and ml/AGENTS.md.
-Implement the samal_ml package in ml/ exactly as ml/AGENTS.md describes, in this order:
+Implement the openwind_ml package in ml/ exactly as ml/AGENTS.md describes, in this order:
 config+data inspection (the SCADA files are in data/raw/) → weather fetch+cache → temporal_guard + test → features → power curve →
 MOS + quantile models → validate val_feb2025 → test-run submission → api.py. Work step by step, run each step, show me results,
-keep the functions in api.py matching CONTRACTS §1 exactly. Start with `python -m samal_ml.cli inspect`.
+keep the functions in api.py matching CONTRACTS §1 exactly. Start with `python -m openwind_ml.cli inspect`.
 ```
 
 ## Kickoff prompt: Person B (Backend/Agent)

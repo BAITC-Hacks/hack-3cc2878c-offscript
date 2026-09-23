@@ -7,7 +7,7 @@ Modes: `test` (issues 2026-01-31…2026-02-27, no actuals), `val_feb2025` (issue
 `val_winter` (issues 2025-10-31…2026-01-30, with actuals).
 
 ---
-## §1 Python API: `ml/samal_ml/api.py` (Person A implements, Person B imports)
+## §1 Python API: `ml/openwind_ml/api.py` (Person A implements, Person B imports)
 All functions return **JSON-serializable dicts/lists** (no DataFrames cross the boundary).
 
 ```python

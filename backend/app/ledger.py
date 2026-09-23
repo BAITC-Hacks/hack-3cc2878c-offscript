@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from samal_ml.temporal_guard import (
+from openwind_ml.temporal_guard import (
     AVAILABILITY_BASIS, AVAILABILITY_POLICY_VERSION, SOURCE_RELEASE_TIME_EVIDENCE,
     assert_no_lookahead,
 )
@@ -38,7 +38,7 @@ class Ledger:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.blocks = self._load()
         if not self.blocks:
-            self.append("GENESIS", [], note="SAMAL ledger genesis")
+            self.append("GENESIS", [], note="OpenWind ledger genesis")
 
     def _load(self) -> list[dict[str, Any]]:
         if not self.path.exists():

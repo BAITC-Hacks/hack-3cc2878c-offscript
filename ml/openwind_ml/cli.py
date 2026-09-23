@@ -12,7 +12,7 @@ from .weather import fetch_archive
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(prog="samal-ml")
+    parser = argparse.ArgumentParser(prog="openwind-ml")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("inspect")
     sub.add_parser("fetch")

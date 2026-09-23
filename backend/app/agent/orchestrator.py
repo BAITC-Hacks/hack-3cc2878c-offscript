@@ -75,7 +75,7 @@ class Orchestrator:
                 return
             default_plan = policy.plan()
             if use_llm:
-                plan, plan_meta = await self._decision(run, "PLAN", "You are SAMAL's forecasting planner. Return JSON only.",
+                plan, plan_meta = await self._decision(run, "PLAN", "You are OpenWind's forecasting planner. Return JSON only.",
                                                        f"Issue date={run.issue_date}. Use archived NWP only. Available models={default_plan.models}.",
                                                        type(default_plan), default_plan)
             else:
@@ -144,7 +144,7 @@ class Orchestrator:
             default_decision = policy.decide(inputs | qc, flags)
             if use_llm:
                 facts = self._facts(forecast, flags, qc)
-                decider, decider_meta = await self._decision(run, "DECIDE", "You are SAMAL's risk decider. Use only supplied facts. Return JSON only.", json.dumps(facts), type(default_decision), default_decision)
+                decider, decider_meta = await self._decision(run, "DECIDE", "You are OpenWind's risk decider. Use only supplied facts. Return JSON only.", json.dumps(facts), type(default_decision), default_decision)
             else:
                 decider, decider_meta = default_decision, None
             if decider.action in {"WIDEN", "RERUN"} or (decider.action == "ESCALATE" and decider.widen > 0):
@@ -159,7 +159,7 @@ class Orchestrator:
             while True:
                 default_critique = policy.critic(forecast, flags, decider)
                 if use_llm:
-                    critique, critic_meta = await self._decision(run, "CRITIC", "You are SAMAL's independent grid-operator critic. Audit only supplied facts. Return JSON only.",
+                    critique, critic_meta = await self._decision(run, "CRITIC", "You are OpenWind's independent grid-operator critic. Audit only supplied facts. Return JSON only.",
                                                                   json.dumps(self._facts(forecast, flags, qc)), CriticDecision, default_critique)
                 else:
                     critique, critic_meta = default_critique, None

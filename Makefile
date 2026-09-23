@@ -1,16 +1,16 @@
-# SAMAL: common commands (run from repo root). Windows users: run the commands inside each target manually.
+# OpenWind: common commands (run from repo root). Windows users: run the commands inside each target manually.
 PY ?= python3
 .PHONY: setup fetch train validate test-run tests api web demo docker
 setup:      ## create venv + install everything
-	$(PY) -m venv .venv && . .venv/bin/activate && pip install -r backend/requirements.txt && pip install -e ml && cd frontend && npm install
+	$(PY) -m venv .venv && . .venv/bin/activate && pip install -r backend/requirements.txt && pip install -e ml && cd frontend && npm ci
 fetch:      ## download archived NWP forecasts into data/cache (needs internet once)
-	. .venv/bin/activate && python -m samal_ml.cli fetch
+	. .venv/bin/activate && python -m openwind_ml.cli fetch
 train:
-	. .venv/bin/activate && python -m samal_ml.cli train --mode test
+	. .venv/bin/activate && python -m openwind_ml.cli train --mode test
 validate:   ## seasonal-twin + winter validation → data/outputs/metrics/*.json
-	. .venv/bin/activate && python -m samal_ml.cli validate --mode val_feb2025 && python -m samal_ml.cli validate --mode val_winter
+	. .venv/bin/activate && python -m openwind_ml.cli validate --mode val_feb2025 && python -m openwind_ml.cli validate --mode val_winter
 test-run:   ## replay 31 Jan → 27 Feb 2026 issues → submission CSVs
-	. .venv/bin/activate && WEATHER_OFFLINE=1 python -m samal_ml.cli test-run
+	. .venv/bin/activate && WEATHER_OFFLINE=1 python -m openwind_ml.cli test-run
 tests:
 	. .venv/bin/activate && pytest ml/tests backend/tests -q
 api:

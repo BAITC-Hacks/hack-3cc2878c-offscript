@@ -1,4 +1,4 @@
-# SAMAL frontend
+# OpenWind frontend
 
 React 18/Vite 5 control-room dashboard for the HackAlem wind-farm forecasting task. It shows 48 hourly P10/P50/P90 forecasts, the day-ahead window (leads 24–47), archived-weather timing, operator risk flags, the autonomous agent trace and recalculation, historical backtesting, append-only ledger checks, and an illustrative balancing-cost scenario.
 

@@ -1,4 +1,4 @@
-"""Leakage-safe probabilistic wind-power forecasting for SAMAL."""
+"""Leakage-safe probabilistic wind-power forecasting for OpenWind."""
 
 __all__ = ["get_meta", "run_forecast"]
 

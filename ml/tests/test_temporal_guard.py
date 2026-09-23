@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from samal_ml.temporal_guard import (
+from openwind_ml.temporal_guard import (
     AVAILABILITY_POLICY_VERSION, assert_no_lookahead, availability_policy_metadata,
     available_at, lead_day,
 )

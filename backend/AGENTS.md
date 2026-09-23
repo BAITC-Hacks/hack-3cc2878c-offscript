@@ -1,7 +1,7 @@
 # backend/AGENTS.md: Person B (Backend + Agent + Ledger)
 
 Read first: `/PROJECT_PLAN.md` §6, `/docs/CONTRACTS.md` §1–§4. You implement the REST/SSE API **exactly** as in CONTRACTS §2–3.
-You consume `samal_ml.api` (CONTRACTS §1). Until Person A delivers, use `app/ml_stub.py` (reads `shared/mocks/`) behind
+You consume `openwind_ml.api` (CONTRACTS §1). Until Person A delivers, use `app/ml_stub.py` (reads `shared/mocks/`) behind
 the same function names; switch with env `USE_ML_STUB=1|0`. Real ML is the default, and an import failure must fail startup rather than silently serve sample data.
 
 ## Layout
@@ -14,8 +14,8 @@ backend/
     main.py          FastAPI app, CORS *, routers, startup: load ledger, ensure GENESIS block
     settings.py      pydantic-settings / os.environ (see /.env.example)
     schemas.py       Pydantic models mirroring CONTRACTS §4 (ForecastResult, RiskFlag, Briefing, Block, AgentEvent…)
-    ml_bridge.py     try: import samal_ml.api as ml  except: import app.ml_stub as ml
-    ml_stub.py       same functions as samal_ml.api, returning shared/mocks data
+    ml_bridge.py     try: import openwind_ml.api as ml  except: import app.ml_stub as ml
+    ml_stub.py       same functions as openwind_ml.api, returning shared/mocks data
     ledger.py        hash chain: append/verify/tamper_demo (code below)
     runs.py          in-memory run registry + asyncio.Queue per run for SSE; persists to data/outputs/agent_runs/
     routers/ forecast.py agent.py ledger.py backtest.py economics.py live.py health.py
@@ -84,7 +84,7 @@ class LLM:
 `LLM_PROVIDER=none` → always LLMUnavailable → rule-based path. The UI must still look great in this mode.
 
 ## Prompts (prompts/*.md): keep them short, JSON-only, role-specific
-- **planner.md**: "You are SAMAL-Orchestrator, an autonomous forecasting agent for a wind farm in the Shelek corridor, Kazakhstan.
+- **planner.md**: "You are OpenWind-Orchestrator, an autonomous forecasting agent for a wind farm in the Shelek corridor, Kazakhstan.
   Goal: produce a reliable 48-h hourly probabilistic power forecast issued at {issue_time} using ONLY data available then.
   Available tools: … Return JSON {steps:[…], variant, models, reasoning (≤ 40 words)}."
 - **decider.md**: given facts & flags choose ACCEPT/RERUN/WIDEN/ESCALATE. Rules of thumb: model disagreement → WIDEN 0.05–0.1;

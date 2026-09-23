@@ -1,4 +1,4 @@
-# SAMAL ML.
+# OpenWind ML.
 
 This folder contains the leakage-safe probabilistic forecasting engine for the two-turbine Shelek wind farm.
 
@@ -17,7 +17,7 @@ From this directory:
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m pytest tests -q
-.\.venv\Scripts\python.exe -m samal_ml.cli inspect
+.\.venv\Scripts\python.exe -m openwind_ml.cli inspect
 ```
 
 The inspection output should show normalized power in `[0, 1]`, UTC timestamps, and explicit flags.
@@ -27,10 +27,10 @@ The inspection output should show normalized power in `[0, 1]`, UTC timestamps, 
 `fetch` is the one networked command. It caches archived NWP files outside this folder under `data/cache/nwp/`; after the cache is populated, set `WEATHER_OFFLINE=1` for reproducible replay.
 
 ```powershell
-.\.venv\Scripts\python.exe -m samal_ml.cli fetch
-.\.venv\Scripts\python.exe -m samal_ml.cli train --mode val_feb2025
-.\.venv\Scripts\python.exe -m samal_ml.cli validate --mode val_feb2025
-.\.venv\Scripts\python.exe -m samal_ml.cli test-run
+.\.venv\Scripts\python.exe -m openwind_ml.cli fetch
+.\.venv\Scripts\python.exe -m openwind_ml.cli train --mode val_feb2025
+.\.venv\Scripts\python.exe -m openwind_ml.cli validate --mode val_feb2025
+.\.venv\Scripts\python.exe -m openwind_ml.cli test-run
 ```
 
-The public integration surface is `samal_ml/api.py`. Its forecast responses use UTC JSON timestamps, normalized power, and ordered `p10`, `p50`, `p90` quantiles.
+The public integration surface is `openwind_ml/api.py`. Its forecast responses use UTC JSON timestamps, normalized power, and ordered `p10`, `p50`, `p90` quantiles.

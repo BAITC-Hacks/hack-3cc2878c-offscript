@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from samal_ml.api import get_meta, issue_time_for, list_issue_dates
-from samal_ml.features import input_fingerprints_by_target
+from openwind_ml.api import get_meta, issue_time_for, list_issue_dates
+from openwind_ml.features import input_fingerprints_by_target
 
 
 def test_meta_matches_public_contract_basics() -> None:

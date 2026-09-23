@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from app.ledger import Ledger, sha
-from samal_ml.temporal_guard import availability_policy_metadata
+from openwind_ml.temporal_guard import availability_policy_metadata
 
 
 def test_ledger_distinguishes_legacy_policy_from_configured_violation(tmp_path):

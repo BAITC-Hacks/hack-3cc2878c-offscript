@@ -154,7 +154,7 @@ def run_forecast(
     issue = _issue_timestamp(issue_date)
     nwp = load_nwp_cache(models or NWP_MODELS)
     if not nwp:
-        raise FileNotFoundError("no archived NWP cache found; run `python -m samal_ml.cli fetch` on a networked machine")
+        raise FileNotFoundError("no archived NWP cache found; run `python -m openwind_ml.cli fetch` on a networked machine")
     inputs, audit = build_issue_frame(issue, nwp)
     bundle = _bundle(mode)
     predicted = predict_bundle(bundle, inputs, widen=widen)

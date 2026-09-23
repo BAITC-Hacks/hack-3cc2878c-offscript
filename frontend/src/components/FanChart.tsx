@@ -8,7 +8,7 @@ export function FanChart({ forecast, showModels, showActual }: { forecast: Forec
   const rows = forecast.rows.map(row => ({ ...row, band: [row.p10 * 100, row.p90 * 100], p50pct: row.p50 * 100, actualPct: row.actual == null ? null : row.actual * 100,
     label: `${new Date(row.target_time_local).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} ${row.target_time_local.slice(11, 16)}`,
     ecmwf: row.nwp_v_hub.ecmwf_ifs025, gfs: row.nwp_v_hub.gfs_seamless, icon: row.nwp_v_hub.icon_seamless }))
-  return <div className="chart-wrap" role="img" aria-label="48 hour P10 to P90 forecast band with median output and archived model wind speeds">
+  return <div className="chart-wrap" role="img" aria-label="48 hour normalized farm power forecast as a percentage of installed capacity, with P10 to P90 interval and archived model wind speeds">
     <ResponsiveContainer width="100%" height={360}>
       <ComposedChart data={rows} margin={{ top: 14, right: 10, bottom: 4, left: -12 }}>
         <CartesianGrid stroke="#23344c" strokeDasharray="3 5" vertical={false} />
@@ -28,6 +28,6 @@ export function FanChart({ forecast, showModels, showActual }: { forecast: Forec
         <ReferenceLine yAxisId="power" x={24} stroke="#a1afc2" strokeDasharray="4 4" label={{ value: 'Day-ahead begins', position: 'insideTopRight', fill: '#cbd5e1', fontSize: 11 }} />
       </ComposedChart>
     </ResponsiveContainer>
-    <div className="chart-foot">Issue: {localTime(forecast.issue_time)} · Day-ahead delivery is leads 24–47</div>
+    <div className="chart-foot">Left axis: normalized farm power (% of installed capacity; 100% = full rated output). Right axis, when shown: forecast wind speed (m/s). Issue: {localTime(forecast.issue_time)} · Day-ahead delivery is leads 24–47.</div>
   </div>
 }

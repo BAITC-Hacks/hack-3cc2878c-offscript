@@ -9,11 +9,11 @@ Variant = Literal["hybrid", "mos_pc", "raw_pc", "climatology", "persistence"]
 Stage = Literal["PLAN", "FETCH", "QC", "PREDICT", "ANALYZE", "DECIDE", "CRITIC", "BRIEF", "PUBLISH", "RECALC", "DONE"]
 
 
-class SamalModel(BaseModel):
+class OpenWindModel(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
 
-class RiskFlag(SamalModel):
+class RiskFlag(OpenWindModel):
     code: str
     severity: Literal["info", "warn", "critical"]
     start: str
@@ -22,7 +22,7 @@ class RiskFlag(SamalModel):
     message: str
 
 
-class ForecastRow(SamalModel):
+class ForecastRow(OpenWindModel):
     target_time: str
     target_time_local: str
     lead_h: int = Field(ge=1, le=48)
@@ -38,7 +38,7 @@ class ForecastRow(SamalModel):
     actual: float | None = None
 
 
-class ForecastResult(SamalModel):
+class ForecastResult(OpenWindModel):
     issue_date: str
     issue_time: str
     mode: Mode
@@ -63,12 +63,12 @@ class ForecastResult(SamalModel):
     recalculation: dict[str, Any] | None = None
 
 
-class BriefingRisk(SamalModel):
+class BriefingRisk(OpenWindModel):
     code: str
     text: str
 
 
-class BriefingItem(SamalModel):
+class BriefingItem(OpenWindModel):
     lang: Literal["en", "ru", "kk"]
     headline: str
     summary: str
@@ -79,13 +79,13 @@ class BriefingItem(SamalModel):
     generated_by: Literal["llm", "template"]
 
 
-class Briefings(SamalModel):
+class Briefings(OpenWindModel):
     en: BriefingItem
     ru: BriefingItem
     kk: BriefingItem
 
 
-class AgentEvent(SamalModel):
+class AgentEvent(OpenWindModel):
     run_id: str
     seq: int
     ts: str
@@ -98,20 +98,20 @@ class AgentEvent(SamalModel):
     duration_ms: int | None = None
 
 
-class AgentRunRequest(SamalModel):
+class AgentRunRequest(OpenWindModel):
     issue_date: str
     mode: Mode = "test"
     use_llm: bool = True
 
 
-class RecalcRequest(SamalModel):
+class RecalcRequest(OpenWindModel):
     issue_date: str
     mode: Mode = "test"
     reason: str = "new_nwp"
     use_llm: bool = True
 
 
-class LedgerBlock(SamalModel):
+class LedgerBlock(OpenWindModel):
     index: int
     type: str
     prev_hash: str
@@ -139,21 +139,21 @@ class LedgerBlock(SamalModel):
     recalculation: dict[str, Any] | None = None
 
 
-class PlannerDecision(SamalModel):
+class PlannerDecision(OpenWindModel):
     steps: list[str]
     variant: Variant = "hybrid"
     models: list[str] = Field(default_factory=list)
     reasoning: str = ""
 
 
-class DeciderDecision(SamalModel):
+class DeciderDecision(OpenWindModel):
     action: Literal["ACCEPT", "RERUN", "WIDEN", "ESCALATE"]
     variant: Variant = "hybrid"
     widen: float = Field(default=0, ge=0, le=0.3)
     rationale: str = ""
 
 
-class CriticDecision(SamalModel):
+class CriticDecision(OpenWindModel):
     approve: bool
     issues: list[str] = Field(default_factory=list)
     suggestion: DeciderDecision = Field(default_factory=lambda: DeciderDecision(action="ACCEPT"))

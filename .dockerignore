@@ -10,3 +10,6 @@ frontend/dist
 **/.pytest_cache
 *.pyc
 Dataset HackAlemAI*.csv
+*.docx
+*.pdf
+**/*.egg-info

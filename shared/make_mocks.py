@@ -51,7 +51,7 @@ blocks = []; prev = "0" * 64
 def add(b):
     global prev
     b = {**b, "prev_hash": prev}; b["hash"] = sha(b); blocks.append(b); prev = b["hash"]; return b
-add({"index": 0, "type": "GENESIS", "issue_date": None, "issue_time": None, "created_at": "2026-09-23T09:00:00Z", "note": "SAMAL ledger genesis"})
+add({"index": 0, "type": "GENESIS", "issue_date": None, "issue_time": None, "created_at": "2026-09-23T09:00:00Z", "note": "OpenWind ledger genesis"})
 add({"index": 1, "type": "MODEL_TRAINED", "issue_date": None, "issue_time": "2026-01-30T19:00:00Z", "created_at": "2026-09-23T09:30:00Z",
      "model_version": f["model_version"], "note": "trained on data <= 2026-01-30T19:00Z"})
 for i, d in enumerate(dates("2026-01-31", 16)):

@@ -15,7 +15,7 @@ async def main(mode: str) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Replay SAMAL agent over an issue schedule.")
+    parser = argparse.ArgumentParser(description="Replay OpenWind agent over an issue schedule.")
     parser.add_argument("--mode", default="test", choices=["test", "val_feb2025", "val_winter"])
     args = parser.parse_args()
     asyncio.run(main(args.mode))

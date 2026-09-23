@@ -1,1 +1,1 @@
-"""SAMAL FastAPI service."""
+"""OpenWind FastAPI service."""

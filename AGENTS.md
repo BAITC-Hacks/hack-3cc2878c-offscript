@@ -1,7 +1,7 @@
 # AGENTS.md: instructions for AI coding agents (Claude Code, Codex, Cursor, …)
 
 You are helping a 3-person team at **HackAlem AI 2026** (5-hour hackathon, hard deadline **18:00 Asia/Almaty**).
-Project: **SAMAL**, an agentic, probabilistic wind-farm power forecaster with a configured NWP availability policy. The Previous Runs API does not verify source release timestamps. Read in this order:
+Project: **OpenWind**, an agentic, probabilistic wind-farm power forecaster with a configured NWP availability policy. The Previous Runs API does not verify source release timestamps. Read in this order:
 
 0. `START_HERE.md`: 2-minute quick start + kickoff prompts
 1. `PROJECT_PLAN.md`: what we build and why (the master plan)
@@ -14,7 +14,7 @@ Project: **SAMAL**, an agentic, probabilistic wind-farm power forecaster with a 
 PROJECT_PLAN.md       master plan            docs/ARCHITECTURE.md   deeper design notes
 AGENTS.md / CLAUDE.md this file              docs/CONTRACTS.md      Python API, REST, SSE, file schemas (SOURCE OF TRUTH)
 README.md             judge-facing README    docs/TIMELINE.md       hour-by-hour plan + checklists
-ml/                   Person A (samal_ml)    docs/RULES_CHECKLIST.md  hackathon rules → actions
+ml/                   Person A (openwind_ml)    docs/RULES_CHECKLIST.md  hackathon rules → actions
 backend/              Person B (FastAPI+agent) docs/DEMO_SCRIPT.md  pitch, demo flow, Q&A
 frontend/             Person C (React)       docs/TASK_ORIGINAL.md  organizer task text
 shared/mocks/         JSON fixtures matching CONTRACTS (frontend uses them before backend is ready)
@@ -27,7 +27,7 @@ data/outputs/         forecasts, metrics, submission CSVs     data/ledger/ hash-
    (`docs/CONTRACTS.md`, `shared/mocks/`, `docker-compose.yml`, `README.md`) may be edited only with a note in
    `docs/CHANGELOG_CONTRACTS.md` (append: time, who, what changed, why).
 2. **No lookahead, ever.** Any code that touches weather or SCADA data for a forecast issued at `t0` must go through
-   `samal_ml.temporal_guard`. If you are unsure whether data was available at `t0`, it wasn't.
+   `openwind_ml.temporal_guard`. If you are unsure whether data was available at `t0`, it wasn't.
 3. **LLM never computes numbers.** Python computes; the LLM plans, decides, critiques, explains. All LLM outputs are JSON
    validated with Pydantic, with a rule-based fallback. The whole system must run with `LLM_PROVIDER=none`.
 4. **Offline reproducibility.** Anything fetched from the internet is cached under `data/cache/` (weather) or
@@ -46,4 +46,4 @@ data/outputs/         forecasts, metrics, submission CSVs     data/ledger/ hash-
 - Power is **normalized 0..1** everywhere in code; UI may show % or MW (capacity from config `FARM_CAPACITY_MW`).
 - Quantile columns are named exactly `p10`, `p50`, `p90`.
 - Issue date `D` means issue time `t0 = D 00:00 Asia/Almaty = (D−1) 19:00Z`; lead `L` = hours after t0 (1..48).
-- Paths are built from `samal_ml.config.PATHS` (never hard-code absolute paths).
+- Paths are built from `openwind_ml.config.PATHS` (never hard-code absolute paths).
