@@ -17,7 +17,7 @@ Headline validation results (Feb 2025 "seasonal twin", day-ahead leads 24–47 h
 (TODO insert diagram image `docs/img/architecture.png` or keep the ASCII from `PROJECT_PLAN.md` §4)
 - `ml/`: `samal_ml`: SCADA cleaning, Open-Meteo archived-forecast fetcher with **TemporalGuard**, physics-informed quantile model, backtests
 - `backend/`: FastAPI: agent orchestrator (planner/decider/critic LLMs + tools), SSE stream, ledger, REST API
-- `frontend/`: React dashboard: forecast fan chart, live agent console, backtest skill, ledger verify/tamper, economics
+- `frontend/`: React dashboard: forecast fan chart, live agent console, backtest skill, ledger verify/tamper, and economics
 - `data/`: raw SCADA, cached weather (committed → offline replay), outputs (forecasts, metrics, **submission CSVs**), ledger, LLM cache
 
 ## 3. Technologies
