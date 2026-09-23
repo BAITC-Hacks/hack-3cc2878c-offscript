@@ -22,7 +22,7 @@ python -m venv .venv
 
 The inspection output should show normalized power in `[0, 1]`, UTC timestamps, and explicit flags.
 
-## Weather and forecast workflow
+## Weather and forecast workflow.
 
 `fetch` is the one networked command. It caches archived NWP files outside this folder under `data/cache/nwp/`; after the cache is populated, set `WEATHER_OFFLINE=1` for reproducible replay.
 
